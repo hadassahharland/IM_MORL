@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="JavaRLGlueCodec">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/src/JavaRLGlueCodec.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
