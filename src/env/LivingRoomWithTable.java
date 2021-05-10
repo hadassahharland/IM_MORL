@@ -15,6 +15,7 @@
 
 package env;
 
+import com.sun.xml.internal.bind.v2.TODO;
 import org.rlcommunity.rlglue.codec.EnvironmentInterface;
 import org.rlcommunity.rlglue.codec.taskspec.TaskSpec;
 import org.rlcommunity.rlglue.codec.taskspec.TaskSpecVRLGLUE3;
@@ -34,10 +35,14 @@ public class LivingRoomWithTable implements EnvironmentInterface
     //	4   5	6	7
     //	8   9	10	11
     //	12  13	14	15
-    private final int NUM_CELLS = 16;
-    private final int AGENT_START = 3;
-    private final int BOX_START = 5;
-    private final int AGENT_GOAL = 3;
+    private final int NUM_CELLS = 16;   // number of possible locations for agent, table or rubbish (0 - 15)
+    private final int AGENT_START = 3;   // location of agent at initiation
+    private final int TABLE_START = 5;   // location of table at initiation and desired final location
+    private final int AGENT_GOAL = 3;   // location of agent at final goal
+    // Hardcoded a single piece of rubbish
+    private final int COUNT_RUBBISH_SPAWN = 1;   // Number of rubbish items initiated
+    private final int RUBBISH_SPAWN[] = {14};   // locations of rubbish items
+
     // map of the environment - -1 indicates a wall. In location 5 there is a table that can be moved.
     // In location 3 there is a trash bin that the agent can dispose of rubbish within.
     // assumes directions ordered as 0 = up, 1 = right, 2 = down, 3 = left, and that action 4 = pickup rubbish
@@ -63,6 +68,78 @@ public class LivingRoomWithTable implements EnvironmentInterface
             {11, WALL, WALL, 14}, //15
     };
     private final int PICKUP_RUBBISH = 4;
+    // displacement penalty term used in the impact minimisation reward, based on the table location
+    // this penalty is potential-based: -50 if the table is not in it's original location
+    private final int DISPLACEMENT_PENALTY = -50;
+    // noise penalty term for movement of table is not revoked.
+    // penalty sized so that moving the table twice to move and then replace is less impactful than moving the table
+    // once and leaving it displaced, but moving the table multiple times produces a significant penalty.
+    private final int NOISE_PENALTY = -20;
+    private final int TABLE_PENALTY[] = {
+            DISPLACEMENT_PENALTY, DISPLACEMENT_PENALTY, DISPLACEMENT_PENALTY, DISPLACEMENT_PENALTY,
+            DISPLACEMENT_PENALTY, 0, DISPLACEMENT_PENALTY, DISPLACEMENT_PENALTY,
+            DISPLACEMENT_PENALTY, DISPLACEMENT_PENALTY, DISPLACEMENT_PENALTY, DISPLACEMENT_PENALTY,
+            DISPLACEMENT_PENALTY, DISPLACEMENT_PENALTY, DISPLACEMENT_PENALTY, DISPLACEMENT_PENALTY};
+
+    private final int MESSY_ROOM_PENALTY = -1;  // each time step, there will be a -1 reward for each piece of rubbish
+    private final int THROW_AWAY_REWARD = 25; // each piece of rubbish collected and successfully thrown away has a
+    // reward of 25
+
+    // define the ordering of the objectives
+    private final int NUM_OBJECTIVES = 2;
+    private final int TIDY_REWARD = 0;
+    private final int IMPACT_REWARD = 1;
+
+    // state variables
+    private int agentLocation;   // location of the agent
+    private int tableLocation;   // location of the table
+    private int carriedRubbish;   // number of pieces of rubbish in hand
+    private int rubbishRemaining;   // number of pieces of rubbish in the room
+    private int noiseInstances;   // number of times the table has been moved
+    private Reward rewards = new Reward(0,NUM_OBJECTIVES,0);
+    private boolean terminal;
+
+    // debugging variables
+    boolean debugging = false;
+
+    // Implemented for use in debugging the TLO-PA agent. Lets me generate the state index for a given state so I can
+    // look it up in the agent's Q-table
+//    private void printStateIndex(int agent, int table, int rubbishInHand, int rubbishOnFloor)
+//    {
+//        agentLocation = agent;
+//        tableLocation = table;
+//        carriedRubbish = rubbishInHand;
+//        rubbishRemaining = rubbishOnFloor;
+//        // TODO include other state considerations here
+//        // TODO find "getState()"
+//        System.out.println (agentLocation +"\t" + tableLocation +"\t" + carriedRubbish +"\t" + rubbishRemaining
+//                +"\t" + getState());
+//    }
+
+    public String env_init()
+    {
+        //initialize the problem - starting position is always at the home location
+        agentLocation = AGENT_START;
+        tableLocation = TABLE_START;
+        carriedRubbish = 0;   // at initialisation, the agent is not carrying any rubbish
+        rubbishRemaining = COUNT_RUBBISH_SPAWN;   // at initialisation, rubbish in room equals total pieces of rubbish
+        terminal = false;
+        //Task specification object
+        TaskSpecVRLGLUE3 theTaskSpecObject = new TaskSpecVRLGLUE3();
+        theTaskSpecObject.setEpisodic();
+        //Specify that there will be this number of observations
+        // = 16 agent positions * 16 box positions
+        // TODO specify number of observations
+        theTaskSpecObject.addDiscreteObservation(new IntRange(0, NUM_CELLS*NUM_CELLS));
+        //Specify that there will be an integer action [0,3]
+        theTaskSpecObject.addDiscreteAction(new IntRange(0, 3));
+        //Specify that there will this number of objectives
+        theTaskSpecObject.setNumOfObjectives(NUM_OBJECTIVES);
+        //Convert specification object to a string
+        String taskSpecString = theTaskSpecObject.toTaskSpec();
+        TaskSpec.checkTaskSpec(taskSpecString);
+        return taskSpecString;
+    }
 
 
 }
