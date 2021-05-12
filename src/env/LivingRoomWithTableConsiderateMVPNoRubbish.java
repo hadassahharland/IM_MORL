@@ -64,7 +64,7 @@ public class LivingRoomWithTableConsiderateMVPNoRubbish implements EnvironmentIn
     // In location 3 there is a trash bin that the agent can dispose of rubbish within.
     // assumes directions ordered as 0 = up, 1 = right, 2 = down, 3 = left
     // apology as an action sits outside of this action set
-    // [^ > v < *]
+    // [^ > v <]
     private final int WALL = -1;
     private final int MAP[][] = {
             {WALL, 1, 4, WALL}, //0
@@ -103,9 +103,10 @@ public class LivingRoomWithTableConsiderateMVPNoRubbish implements EnvironmentIn
 //    // reward of 25
 
     // define the ordering of the objectives
-    private final int NUM_OBJECTIVES = 2;
+    private final int NUM_OBJECTIVES = 3;
     private final int TIDY_REWARD = 0;
     private final int IMPACT_REWARD = 1;
+    private final int PERFORMANCE_REWARD = 2;
 
     // state variables
     private int agentLocation;   // location of the agent
@@ -306,21 +307,21 @@ public class LivingRoomWithTableConsiderateMVPNoRubbish implements EnvironmentIn
         terminal = (agentLocation==AGENT_GOAL);
         // set up the reward vector
         rewards.setDouble(IMPACT_REWARD, potentialDifference(oldTableLocation, newTableLocation));
-//        if (!terminal)
-//        {
-//            rewards.setDouble(GOAL_REWARD, -1);
-//            rewards.setDouble(PERFORMANCE_REWARD, -1);
-//        }
-//        else
-//        {
-//            rewards.setDouble(GOAL_REWARD, 50); // reward for reaching goal
-//            rewards.setDouble(PERFORMANCE_REWARD, 50+BOX_PENALTY[boxLocation]);
-//        }
-        if (terminal)
+        if (!terminal)
+        {
+            rewards.setDouble(TIDY_REWARD, -1);
+            rewards.setDouble(PERFORMANCE_REWARD, -1);
+        }
+        else
         {
             rewards.setDouble(TIDY_REWARD, 50); // reward for reaching goal
-            rewards.setDouble(IMPACT_REWARD, 50+TABLE_PENALTY[tableLocation]);
+            rewards.setDouble(PERFORMANCE_REWARD, 50+TABLE_PENALTY[tableLocation]);
         }
+//        if (terminal)
+//        {
+//            rewards.setDouble(TIDY_REWARD, 50); // reward for reaching goal
+//            rewards.setDouble(IMPACT_REWARD, 50+TABLE_PENALTY[tableLocation]);
+//        }
     }
 
     public static void main(String[] args)
