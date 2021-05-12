@@ -69,7 +69,7 @@ public class MORL_Glue_Driver
 		            //SpaceExploration.main(null);
 		            //BreakableBottlesSideEffectsV2.main(null);
 		            //UnbreakableBottlesSideEffectsV2.main(null);
-		            SokobanSideEffects.main(null);
+		            //SokobanSideEffects.main(null);
 		            //Doors.main(null);
 		            //UnbreakableBottlesSideEffectsNoop.main(null);
 		            //BreakableBottlesSideEffectsNoop.main(null);
@@ -77,8 +77,10 @@ public class MORL_Glue_Driver
 		            //DoorsNoop.main(null);
 		            //StochasticMOMDP.main(null);
 		            //SpaceTraders.main(null);
-					//LivingRoomWithTableConsiderateMVPNoRubbish.main(null);
-		          }
+					LivingRoomWithTableConsiderateMVPNoRubbish.main(null);
+					//LivingRoomWithTableConsiderateMVPOneRubbish.main(null);
+
+				  }
 		        };
 		     envt.start();
 	 	   // launch experiment in its own thread
