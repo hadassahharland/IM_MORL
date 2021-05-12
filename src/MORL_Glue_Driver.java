@@ -5,9 +5,9 @@ import env.SokobanSideEffects;
 import experiments.MVPExperimentWithExcelOutput;
 import experiments.SideEffectExperimentWithExcelOutput;
 
-//import agents.*;
-//import env.*;
-//import experiments.*;
+import agents.*;
+import env.*;
+import experiments.*;
 
 
 public class MORL_Glue_Driver
@@ -44,8 +44,8 @@ public class MORL_Glue_Driver
 		            //TLO_EOVF_Agent.main(null);
 		            //SideEffectSingleObjectiveAgent.main(null);
 		            //SideEffectLinearWeightedAgent.main(null);
-		            SafetyFirstMOAgent.main(null);
-		            //SatisficingMOAgent.main(null);
+		            //SafetyFirstMOAgent.main(null);
+		            SatisficingMOAgent.main(null);
 		            //LearningRelativeReachabilityAgent.main(null);
 		            //TLO_Agent_Conditioned_On_Actual_Rewards.main(null);
 		            //TLO_Agent_Conditioned_On_Expected_Rewards.main(null);
@@ -69,7 +69,7 @@ public class MORL_Glue_Driver
 		            //SpaceExploration.main(null);
 		            //BreakableBottlesSideEffectsV2.main(null);
 		            //UnbreakableBottlesSideEffectsV2.main(null);
-		            //SokobanSideEffects.main(null);
+		            SokobanSideEffects.main(null);
 		            //Doors.main(null);
 		            //UnbreakableBottlesSideEffectsNoop.main(null);
 		            //BreakableBottlesSideEffectsNoop.main(null);
@@ -77,7 +77,7 @@ public class MORL_Glue_Driver
 		            //DoorsNoop.main(null);
 		            //StochasticMOMDP.main(null);
 		            //SpaceTraders.main(null);
-					LivingRoomWithTableConsiderateMVPNoRubbish.main(null);
+					//LivingRoomWithTableConsiderateMVPNoRubbish.main(null);
 		          }
 		        };
 		     envt.start();
