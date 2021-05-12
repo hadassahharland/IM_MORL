@@ -14,6 +14,8 @@ import tools.spreadsheet.*;
 import agents.TLO_Agent;
 
 import java.io.*;
+import java.sql.Date;
+import java.sql.Timestamp;
 
 public class MVPExperimentWithExcelOutput
 {
@@ -25,7 +27,7 @@ public class MVPExperimentWithExcelOutput
     private final double ALPHA = 0.1;
     private final double LAMBDA = 0.95;
     private final double GAMMA = 1.0;
-    private final int NUM_TRIALS = 20;
+    private final int NUM_TRIALS = 4;   // usually 20
 
     // enable this group of declarations for egreedy exploration
     //private final int EXPLORATION = TLO_LookupTable.EGREEDY;
@@ -53,20 +55,24 @@ public class MVPExperimentWithExcelOutput
     //private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 100;
     //private final int MAX_EPISODE_LENGTH = 1000;
     // Settings for the UnbreakableBottles task
-    private final String ENVIRONMENT_PREFIX = "Doors";  //"MVPConsiderateNoRubbish";
-    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 2000;
-    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 100;
-    private final int MAX_EPISODE_LENGTH = 1000;
-    // Settings for the Sokoban task
-    //private final String ENVIRONMENT_PREFIX = "Sokoban";
-    //private final int NUM_ONLINE_EPISODES_PER_TRIAL = 5000;
-    //private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 1;
-    //private final int MAX_EPISODE_LENGTH = 1000;
+//    private final String ENVIRONMENT_PREFIX = "Doors";  //"MVPConsiderateNoRubbish";
+//    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 2000;
+//    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 100;
+//    private final int MAX_EPISODE_LENGTH = 1000;
+//     Settings for the Sokoban task
+//    private final String ENVIRONMENT_PREFIX = "Sokoban";
+//    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
+//    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 1;
+//    private final int MAX_EPISODE_LENGTH = 1000;
     // Settings for the Doors task
     //private final String ENVIRONMENT_PREFIX = "Doors";
     //private final int NUM_ONLINE_EPISODES_PER_TRIAL = 5000;
     //private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 1;
     //private final int MAX_EPISODE_LENGTH = 1000;
+    private final String ENVIRONMENT_PREFIX = "MVPConsiderateNoRubbish";
+    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
+    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
+    private final int MAX_EPISODE_LENGTH = 1000;
 
     private final String FILENAME_PREFIX = ENVIRONMENT_PREFIX + "-";
     private ExcelWriter excel;
@@ -134,6 +140,10 @@ public class MVPExperimentWithExcelOutput
                     + "&AVERAGE(" + excel.getAddress(3,NUM_ONLINE_EPISODES_PER_TRIAL+1) + ":" + excel.getAddress(3,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL) + ")"
                     + "&AVERAGE(" + excel.getAddress(4,NUM_ONLINE_EPISODES_PER_TRIAL+1) + ":" + excel.getAddress(4,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL) + ")";
             excel.writeNextRowTextAndFormula("Mean over all offline episodes& ", formulas);
+
+            // Get Timestamp
+            Timestamp ts = new Timestamp(System.currentTimeMillis());
+            System.out.println("End of trial. Current Time Stamp: " + ts);
         }
         // make summary sheet - the +2 on the number of rows is to capture the online and offline means as well as the individual episode results
         excel.makeSummarySheet(NUM_TRIALS, "R^P&R^A&R^*", 2, 1, numObjectives, NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL+2);

@@ -1,5 +1,8 @@
 import agents.SafetyFirstMOAgent;
 import env.Doors;
+import env.LivingRoomWithTableConsiderateMVPNoRubbish;
+import env.SokobanSideEffects;
+import experiments.MVPExperimentWithExcelOutput;
 import experiments.SideEffectExperimentWithExcelOutput;
 
 //import agents.*;
@@ -67,13 +70,14 @@ public class MORL_Glue_Driver
 		            //BreakableBottlesSideEffectsV2.main(null);
 		            //UnbreakableBottlesSideEffectsV2.main(null);
 		            //SokobanSideEffects.main(null);
-		            Doors.main(null);
+		            //Doors.main(null);
 		            //UnbreakableBottlesSideEffectsNoop.main(null);
 		            //BreakableBottlesSideEffectsNoop.main(null);
 		            //SokobanSideEffectsNoop.main(null);
 		            //DoorsNoop.main(null);
 		            //StochasticMOMDP.main(null);
 		            //SpaceTraders.main(null);
+					LivingRoomWithTableConsiderateMVPNoRubbish.main(null);
 		          }
 		        };
 		     envt.start();
@@ -89,8 +93,9 @@ public class MORL_Glue_Driver
 		            //SteeringExperimentWithTargetChange.main(null);
 		            //TLOExplorationExperiment.main(null);
 		            //SideEffectExperiment.main(null);
-		            SideEffectExperimentWithExcelOutput.main(null);
+		            //SideEffectExperimentWithExcelOutput.main(null);
 		            //TLOConditionedExperiment.main(null);
+					  MVPExperimentWithExcelOutput.main(null);
 		          }
 		        };
 		    experiment.start();

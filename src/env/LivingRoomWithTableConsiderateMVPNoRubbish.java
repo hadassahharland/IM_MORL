@@ -228,7 +228,13 @@ public class LivingRoomWithTableConsiderateMVPNoRubbish implements EnvironmentIn
     // In this case, its simply 0 if the table is in it's home location, and -50 otherwise
     private double potential(int tableLocationTemp)
     {
-        return (TABLE_PENALTY[tableLocationTemp]);   // -50 for all tableLocation values other than
+//        return (TABLE_PENALTY[tableLocationTemp]);   // -50 for all tableLocation values other than home
+        // Above code doesn't work in the case where the "location" is -1 which needs to be testable
+        // (occurs before kickback)
+        if (tableLocationTemp==TABLE_START)
+            return 0;
+        else
+            return DISPLACEMENT_PENALTY;
     }
 
     // Calculate a reward based off the difference in potential between the current
