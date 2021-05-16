@@ -77,8 +77,8 @@ public class MORL_Glue_Driver
 		            //DoorsNoop.main(null);
 		            //StochasticMOMDP.main(null);
 		            //SpaceTraders.main(null);
-					LivingRoomWithTableConsiderateMVPNoRubbish.main(null);
-					//LivingRoomWithTableConsiderateMVPOneRubbish.main(null);
+					//LivingRoomWithTableConsiderateMVPNoRubbish.main(null);
+					LivingRoomWithTableConsiderateMVPOneRubbish.main(null);
 
 				  }
 		        };
