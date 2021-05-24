@@ -5,16 +5,11 @@ package experiments;
 
 import org.rlcommunity.rlglue.codec.RLGlue;
 import org.rlcommunity.rlglue.codec.taskspec.TaskSpecVRLGLUE3;
-import org.rlcommunity.rlglue.codec.types.Observation_action;
 import org.rlcommunity.rlglue.codec.types.Reward;
-import org.rlcommunity.rlglue.codec.types.Reward_observation_action_terminal;
 
 import tools.valuefunction.TLO_LookupTable;
 import tools.spreadsheet.*;
-import agents.TLO_Agent;
 
-import java.io.*;
-import java.sql.Date;
 import java.sql.Timestamp;
 
 public class MVPExperimentWithExcelOutput
@@ -73,10 +68,15 @@ public class MVPExperimentWithExcelOutput
 //    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
 //    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
 //    private final int MAX_EPISODE_LENGTH = 1000;
-    private final String ENVIRONMENT_PREFIX = "MVPConsiderateOneRubbish";
+//    private final String ENVIRONMENT_PREFIX = "MVPConsiderateOneRubbish";
+//    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
+//    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
+//    private final int MAX_EPISODE_LENGTH = 1000;
+    private final String ENVIRONMENT_PREFIX = "MVPConsiderateUnderTable";
     private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
     private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
     private final int MAX_EPISODE_LENGTH = 1000;
+
 
     private final String FILENAME_PREFIX = ENVIRONMENT_PREFIX + "-";
     private ExcelWriter excel;
@@ -96,6 +96,12 @@ public class MVPExperimentWithExcelOutput
     }
 
     public void runExperiment() {
+
+        // Get Timestamp
+        long bt = System.currentTimeMillis();
+        Timestamp bts = new Timestamp(bt);
+        System.out.println("Begin experiment. Current Time Stamp: " + bts);
+
         // set up data structures to store reward history
         String taskSpec = RLGlue.RL_init();
         TaskSpecVRLGLUE3 theTaskSpec = new TaskSpecVRLGLUE3(taskSpec);
@@ -166,6 +172,12 @@ public class MVPExperimentWithExcelOutput
         excel.closeFile();
         RLGlue.RL_cleanup();
         System.out.println("********************************************** Experiment finished");
+        // Get Timestamp
+        long et = System.currentTimeMillis();
+        Timestamp ets = new Timestamp(et);
+        long diff = ((et - bt)/NUM_TRIALS)/1000;
+        System.out.println("Current Time Stamp: " + ets);
+        System.out.println("Average runtime per trial: " + diff + "s");
     }
 
     public static void main(String[] args) {

@@ -1,13 +1,7 @@
-import agents.SafetyFirstMOAgent;
-import env.Doors;
-import env.LivingRoomWithTableConsiderateMVPNoRubbish;
-import env.SokobanSideEffects;
 import experiments.MVPExperimentWithExcelOutput;
-import experiments.SideEffectExperimentWithExcelOutput;
 
 import agents.*;
 import env.*;
-import experiments.*;
 
 
 public class MORL_Glue_Driver
@@ -78,7 +72,8 @@ public class MORL_Glue_Driver
 		            //StochasticMOMDP.main(null);
 		            //SpaceTraders.main(null);
 					//LivingRoomWithTableConsiderateMVPNoRubbish.main(null);
-					LivingRoomWithTableConsiderateMVPOneRubbish.main(null);
+					//LivingRoomWithTableConsiderateMVPOneRubbish.main(null);
+					LivingRoomWithTableConsiderateMVPRubbishUnderTable.main(null);
 
 				  }
 		        };
