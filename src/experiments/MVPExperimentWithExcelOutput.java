@@ -72,7 +72,11 @@ public class MVPExperimentWithExcelOutput
 //    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
 //    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
 //    private final int MAX_EPISODE_LENGTH = 1000;
-    private final String ENVIRONMENT_PREFIX = "MVPConsiderateUnderTable";
+//    private final String ENVIRONMENT_PREFIX = "MVPConsiderateUnderTable";
+//    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
+//    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
+//    private final int MAX_EPISODE_LENGTH = 1000;
+    private final String ENVIRONMENT_PREFIX = "MVPConsiderateBehindTable";
     private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
     private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
     private final int MAX_EPISODE_LENGTH = 1000;

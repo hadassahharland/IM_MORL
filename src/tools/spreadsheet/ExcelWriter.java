@@ -4,7 +4,7 @@ package tools.spreadsheet;
 // Excel interface, if the version I'm currently using fails to be kept up-to-date.
 public abstract class ExcelWriter 
 {
-	protected String[] SUMMARY_FUNCTIONS = {"AVERAGE","MIN","MAX","MEDIAN"};
+	protected String[] SUMMARY_FUNCTIONS = {"AVERAGE","MIN","MAX","MEDIAN","STDEV"};
 	
 	// Create a new worksheet within the current workbook, with the given name and index, and make
 	// it the active worksheet for writing data to.
