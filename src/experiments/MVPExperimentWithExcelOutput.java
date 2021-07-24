@@ -76,10 +76,15 @@ public class MVPExperimentWithExcelOutput
 //    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
 //    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
 //    private final int MAX_EPISODE_LENGTH = 1000;
-    private final String ENVIRONMENT_PREFIX = "MVPConsiderateBehindTable";
+//    private final String ENVIRONMENT_PREFIX = "MVPConsiderateBehindTable";
+//    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
+//    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
+//    private final int MAX_EPISODE_LENGTH = 1000;
+    private final String ENVIRONMENT_PREFIX = "MVPConsiderateWithVase";
     private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
     private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
     private final int MAX_EPISODE_LENGTH = 1000;
+
 
 
     private final String FILENAME_PREFIX = ENVIRONMENT_PREFIX + "-";
@@ -110,6 +115,7 @@ public class MVPExperimentWithExcelOutput
         String taskSpec = RLGlue.RL_init();
         TaskSpecVRLGLUE3 theTaskSpec = new TaskSpecVRLGLUE3(taskSpec);
         numObjectives = theTaskSpec.getNumOfObjectives();
+
         // configure agent, set up files etc
         String agentMessageString = "set_learning_parameters" + " " + ALPHA + " " + LAMBDA + " " + GAMMA + " " + EXPLORATION;
         RLGlue.RL_agent_message(agentMessageString);

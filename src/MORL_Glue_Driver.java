@@ -74,7 +74,8 @@ public class MORL_Glue_Driver
 					//LivingRoomWithTableConsiderateMVPNoRubbish.main(null);
 					//LivingRoomWithTableConsiderateMVPOneRubbish.main(null);
 					//LivingRoomWithTableConsiderateMVPRubbishUnderTable.main(null);
-					LivingRoomWithTableConsiderateMVPRubbishBehindTable.main(null);
+					//LivingRoomWithTableConsiderateMVPRubbishBehindTable.main(null);
+					LivingRoomWithVase.main(null);
 
 				  }
 		        };
