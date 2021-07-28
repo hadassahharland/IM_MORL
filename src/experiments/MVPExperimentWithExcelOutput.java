@@ -68,7 +68,7 @@ public class MVPExperimentWithExcelOutput
 //    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
 //    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
 //    private final int MAX_EPISODE_LENGTH = 1000;
-//    private final String ENVIRONMENT_PREFIX = "MVPConsiderateOneRubbish";
+      private final String ENVIRONMENT_PREFIX = "MVPConsiderateOneRubbish";
 //    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
 //    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
 //    private final int MAX_EPISODE_LENGTH = 1000;
@@ -80,7 +80,7 @@ public class MVPExperimentWithExcelOutput
 //    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
 //    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
 //    private final int MAX_EPISODE_LENGTH = 1000;
-    private final String ENVIRONMENT_PREFIX = "MVPConsiderateWithVase";
+    //private final String ENVIRONMENT_PREFIX = "MVPConsiderateWithVase";
     private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
     private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
     private final int MAX_EPISODE_LENGTH = 1000;
@@ -94,6 +94,7 @@ public class MVPExperimentWithExcelOutput
     private void saveReward(String labels, Reward r)
     {
         excel.writeNextRowTextAndNumbers(labels, r.doubleArray);
+//        System.out.println("reward 1: " + r.doubleArray[0] + " 2: " + r.doubleArray[1] + " length = "+ r.doubleArray.length);
     }
 
     // Run One Episode of length maximum cutOff

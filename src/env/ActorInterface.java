@@ -3,7 +3,6 @@ package env;
 import org.rlcommunity.rlglue.codec.types.Reward;
 
 public interface ActorInterface {
-    void actor_init();
 
     void reaction(Reward var1); // Defines the reaction to the Reward, sets the Attitude and Justification
 
