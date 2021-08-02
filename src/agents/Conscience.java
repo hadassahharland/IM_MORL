@@ -10,7 +10,7 @@ public class Conscience {
     }
 
     // Create wrapper method that contains steps for each action
-    public void onNextAction(Reward r, ConfigurableActor actor, Thresholds thresholds) {
+    public void onNextAction(Reward r, ConfigurableActor actor) {
         // At the end of each action, the agent must step through a process defined by the following methods
         int attitude = observeActor(actor);
         if (attitude < 0) {
@@ -23,7 +23,7 @@ public class Conscience {
                 int reaction = observeActor(actor);
                 if (reaction >= 0) {
                     // if the actor is satisfied with the apology, correct the threshold
-                    adjustThresholds(thresholds, justification);
+                    adjustThresholds(justification);
                 }
             }
         }
@@ -55,7 +55,7 @@ public class Conscience {
         return just;
     }
 
-    public void adjustThresholds(Thresholds thresholds, int justification) {
-        thresholds.adjustThresholds(justification);
+    public void adjustThresholds(int justification) {
+        Thresholds.adjustThresholds(justification);
     }
 }

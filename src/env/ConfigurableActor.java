@@ -80,7 +80,7 @@ public class ConfigurableActor implements ActorInterface{
         //System.out.println("reward 1: " + r.doubleArray[0] + " 2: " + r.doubleArray[1] + " length = "+ r.doubleArray.length)
 
 
-    public void react(int just) {
+    private void react(int just) {
         // if the actor has become upset at this action, then react
         if (just > 0) {
             justification = just;
@@ -91,7 +91,7 @@ public class ConfigurableActor implements ActorInterface{
         }
     }
 
-    public int setNeutral(){
+    private int setNeutral(){
         if (random.nextDouble() > 0.8){  // 20% chance of -1, 0, 1
             return (random.nextInt(3)-1); // random int 0, 1 or 2, -1 to transform to -1, 0, 1
         } else return 0;

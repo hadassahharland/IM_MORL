@@ -1,3 +1,4 @@
+import experiments.MIExperimentWithExcelOutput;
 import experiments.MVPExperimentWithExcelOutput;
 
 import agents.*;
@@ -38,7 +39,8 @@ public class MORL_Glue_Driver
 		            //TLO_EOVF_Agent.main(null);
 		            //SideEffectSingleObjectiveAgent.main(null);
 		            //SideEffectLinearWeightedAgent.main(null);
-		            SafetyFirstMOAgent.main(null);
+		            SatisficingMOMIAgent.main(null);
+					//SafetyFirstMOAgent.main(null);
 		            //SatisficingMOAgent.main(null);
 		            //LearningRelativeReachabilityAgent.main(null);
 		            //TLO_Agent_Conditioned_On_Actual_Rewards.main(null);
@@ -75,7 +77,8 @@ public class MORL_Glue_Driver
 					//LivingRoomWithTableConsiderateMVPOneRubbish.main(null);
 					//LivingRoomWithTableConsiderateMVPRubbishUnderTable.main(null);
 					//LivingRoomWithTableConsiderateMVPRubbishBehindTable.main(null);
-					LivingRoomWithVase.main(null);
+					//LivingRoomWithVase.main(null);
+					LivingRoomWithTableAndCat.main(null);
 
 				  }
 		        };
@@ -94,7 +97,7 @@ public class MORL_Glue_Driver
 		            //SideEffectExperiment.main(null);
 		            //SideEffectExperimentWithExcelOutput.main(null);
 		            //TLOConditionedExperiment.main(null);
-					  MVPExperimentWithExcelOutput.main(null);
+					  MIExperimentWithExcelOutput.main(null);
 		          }
 		        };
 		    experiment.start();

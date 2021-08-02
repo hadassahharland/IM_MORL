@@ -18,6 +18,7 @@ public abstract class TLO_MI {
 	{
 		double thresholdedA, thresholdedB;
 		// first compare the thresholded values
+		// maximise against P, then A1, then A2
 		for (int i=0; i<thresholds.length; i++)
 		{
 			thresholdedA = Math.min(a[i], thresholds[i]);
@@ -27,15 +28,17 @@ public abstract class TLO_MI {
 			else if (thresholdedA<thresholdedB)
 				return -1;
 		}	
-		// test based on any unthresholded values	
-		for (int i=thresholds.length; i<a.length; i++)
-		{
-			if (a[i]>b[i])
-				return 1;
-			else if (a[i]<b[i])
-				return -1;
-		}
+//		// test based on any unthresholded values
+		// No unthresholded values
+//		for (int i=thresholds.length; i<a.length; i++)
+//		{
+//			if (a[i]>b[i])
+//				return 1;
+//			else if (a[i]<b[i])
+//				return -1;
+//		}
 		// equal based on thresholded values, so now test again without applying thresholds
+		// maximise against P, then A1, then A2
 		for (int i=0; i<thresholds.length; i++)
 		{
 			if (a[i]>b[i])

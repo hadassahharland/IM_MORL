@@ -10,6 +10,7 @@
 
 package agents;
 
+import env.ConfigurableActor;
 import org.rlcommunity.rlglue.codec.AgentInterface;
 import org.rlcommunity.rlglue.codec.taskspec.TaskSpecVRLGLUE3;
 import org.rlcommunity.rlglue.codec.types.Action;
@@ -19,7 +20,7 @@ import org.rlcommunity.rlglue.codec.util.AgentLoader;
 import tools.staterep.DummyStateConverter;
 import tools.staterep.interfaces.StateConverter;
 import tools.traces.StateActionIndexPair;
-import tools.valuefunction.SatisficingLookupTable;
+import tools.valuefunction.ApologeticSatisficingMILookupTable;
 import tools.valuefunction.SatisficingMILookupTable;
 import tools.valuefunction.TLO_LookupTable;
 import tools.valuefunction.interfaces.ActionSelector;
@@ -28,12 +29,13 @@ import java.util.Random;
 import java.util.Stack;
 
 
-public class SatisficingMOMIAgent implements AgentInterface {
+public class ApologeticSatisficingMOMIAgent implements AgentInterface {
 
 	// Problem-specific parameters - at some point I need to refactor the code in such a way that these can be set externally
     double primaryRewardThreshold = -50; // sets threshold on the acceptable minimum level of performance on the primary reward // use high value here to get lex-pa
     double impactThreshold1 = 1000; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
     double impactThreshold2 = 1000; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
+    double [] initThresholds = new double[]{primaryRewardThreshold, impactThreshold1, impactThreshold2};
 
     double minPrimaryReward = -1000; // the lowest reward obtainable
     double maxPrimaryReward = 50;	// the highest reward obtainable
@@ -42,8 +44,10 @@ public class SatisficingMOMIAgent implements AgentInterface {
     int numDiscretisationsOfReward = 10; //10; // how many divisions in the discretisation of the accumulated reward?
     double discretisationGranularity = 0.001 + (maxPrimaryReward - minPrimaryReward)/(numDiscretisationsOfReward); // how big is each cell in the discretisation of the accumulated reward? Add 0.001 to avoid rounding up the max value to be out of the index range
     
-	SatisficingMILookupTable vf = null;
+	ApologeticSatisficingMILookupTable vf = null;
     Stack<StateActionIndexPair> tracingStack = null;
+    Conscience conscience = null;
+    ConfigurableActor actor = null;
 
     private boolean policyFrozen = false;
     private boolean debugging = false;
@@ -90,7 +94,8 @@ public class SatisficingMOMIAgent implements AgentInterface {
         numEnvtStates = (theTaskSpec.getDiscreteObservationRange(0).getMax()+1);
         numStates = numEnvtStates * numDiscretisationsOfReward; // agent state = environmental-state U accumulated-primary-reward
         numOfObjectives = theTaskSpec.getNumOfObjectives();
-        vf = new SatisficingMILookupTable(numOfObjectives, numActions, numStates, 0, primaryRewardThreshold, impactThreshold1, impactThreshold2);
+//        vf = new SatisficingMILookupTable(numOfObjectives, numActions, numStates, 0, primaryRewardThreshold, impactThreshold1, impactThreshold2);
+        vf = new ApologeticSatisficingMILookupTable(numOfObjectives, numActions, numStates, 0);
 
         random = new Random(471);
         tracingStack = new Stack<>();
@@ -98,7 +103,11 @@ public class SatisficingMOMIAgent implements AgentInterface {
         //set the model of converting MDP observation to an int state representation
         stateConverter = new DummyStateConverter();
         resetForNewTrial();
-        
+
+        conscience = new Conscience();
+//        Thresholds thresholds = new Thresholds(initThresholds);
+        Thresholds.setThresholds(initThresholds);
+        actor = new ConfigurableActor("IndifferentIra");
         //DEBUGGING STUFF
         saVisits= new int[numStates][numActions];
 
@@ -202,6 +211,9 @@ public class SatisficingMOMIAgent implements AgentInterface {
     @Override
     public Action agent_step(Reward reward, Observation observation) 
     {
+        // Before undertaking next step, assess
+        conscience.onNextAction(reward, actor);
+
         numOfSteps++;
         accumulatedPrimaryReward += reward.getDouble(0); // get the primary reward
         vf.setAccumulatedReward(accumulatedPrimaryReward);
@@ -209,6 +221,8 @@ public class SatisficingMOMIAgent implements AgentInterface {
         vf.setAccumulatedImpact1(accumulatedImpact1);
         accumulatedImpact2 += reward.getDouble(2); // get the second impact-measuring reward
         vf.setAccumulatedImpact1(accumulatedImpact2);
+
+
 
 
         int state = getAugmentedStateIndex(observation);
@@ -457,7 +471,7 @@ public class SatisficingMOMIAgent implements AgentInterface {
     }
 
     public static void main(String[] args) {
-        AgentLoader theLoader = new AgentLoader( new SatisficingMOMIAgent() );
+        AgentLoader theLoader = new AgentLoader( new ApologeticSatisficingMOMIAgent() );
         theLoader.run();
 
     }

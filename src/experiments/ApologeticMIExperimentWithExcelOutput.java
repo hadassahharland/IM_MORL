@@ -6,13 +6,13 @@ package experiments;
 import org.rlcommunity.rlglue.codec.RLGlue;
 import org.rlcommunity.rlglue.codec.taskspec.TaskSpecVRLGLUE3;
 import org.rlcommunity.rlglue.codec.types.Reward;
-
+import tools.spreadsheet.ExcelWriter;
+import tools.spreadsheet.JxlExcelWriter;
 import tools.valuefunction.TLO_LookupTable;
-import tools.spreadsheet.*;
 
 import java.sql.Timestamp;
 
-public class MVPExperimentWithExcelOutput
+public class ApologeticMIExperimentWithExcelOutput
 {
 
     private int whichEpisode = 0;
@@ -68,7 +68,7 @@ public class MVPExperimentWithExcelOutput
 //    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
 //    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
 //    private final int MAX_EPISODE_LENGTH = 1000;
-      private final String ENVIRONMENT_PREFIX = "MVPConsiderateOneRubbish";
+//      private final String ENVIRONMENT_PREFIX = "MVPConsiderateOneRubbish";
 //    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
 //    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
 //    private final int MAX_EPISODE_LENGTH = 1000;
@@ -80,10 +80,10 @@ public class MVPExperimentWithExcelOutput
 //    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
 //    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
 //    private final int MAX_EPISODE_LENGTH = 1000;
-    //private final String ENVIRONMENT_PREFIX = "MVPConsiderateWithVase";
-    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 800;
+    private final String ENVIRONMENT_PREFIX = "TableAndCat";
+    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
     private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
-    private final int MAX_EPISODE_LENGTH = 400;
+    private final int MAX_EPISODE_LENGTH = 1000;
 
 
 
@@ -131,7 +131,7 @@ public class MVPExperimentWithExcelOutput
         {
             // start new excel sheet and include header row
             excel.moveToNewSheet("Trial"+trial, trial);
-            excel.writeNextRowText(" &Episode number&R^P&R^A&R^*");
+            excel.writeNextRowText(" &Episode number&R^P&R^A1&R^A2&R^*");
             // run the trial and save the results to the spreadsheet
             System.out.println("Trial " + trial);
             RLGlue.RL_agent_message("start_new_trial");
@@ -155,11 +155,13 @@ public class MVPExperimentWithExcelOutput
             // add two rows at the end of the worksheet to summarise the means over all online and offline episodes
             String formulas = "AVERAGE(" + excel.getAddress(2,1) + ":" + excel.getAddress(2,NUM_ONLINE_EPISODES_PER_TRIAL) + ")"
                     + "&AVERAGE(" + excel.getAddress(3,1) + ":" + excel.getAddress(3,NUM_ONLINE_EPISODES_PER_TRIAL) + ")"
-                    + "&AVERAGE(" + excel.getAddress(4,1) + ":" + excel.getAddress(4,NUM_ONLINE_EPISODES_PER_TRIAL) + ")";
+                    + "&AVERAGE(" + excel.getAddress(4,1) + ":" + excel.getAddress(4,NUM_ONLINE_EPISODES_PER_TRIAL) + ")"
+                    + "&AVERAGE(" + excel.getAddress(5,1) + ":" + excel.getAddress(5,NUM_ONLINE_EPISODES_PER_TRIAL) + ")";
             excel.writeNextRowTextAndFormula("Mean over all online episodes& ", formulas);
             formulas = "AVERAGE(" + excel.getAddress(2,NUM_ONLINE_EPISODES_PER_TRIAL+1) + ":" + excel.getAddress(2,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL) + ")"
                     + "&AVERAGE(" + excel.getAddress(3,NUM_ONLINE_EPISODES_PER_TRIAL+1) + ":" + excel.getAddress(3,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL) + ")"
-                    + "&AVERAGE(" + excel.getAddress(4,NUM_ONLINE_EPISODES_PER_TRIAL+1) + ":" + excel.getAddress(4,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL) + ")";
+                    + "&AVERAGE(" + excel.getAddress(4,NUM_ONLINE_EPISODES_PER_TRIAL+1) + ":" + excel.getAddress(4,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL) + ")"
+                    + "&AVERAGE(" + excel.getAddress(5,NUM_ONLINE_EPISODES_PER_TRIAL+1) + ":" + excel.getAddress(5,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL) + ")";
             excel.writeNextRowTextAndFormula("Mean over all offline episodes& ", formulas);
 
             // Get Timestamp
@@ -170,7 +172,7 @@ public class MVPExperimentWithExcelOutput
         excel.makeSummarySheet(NUM_TRIALS, "R^P&R^A&R^*", 2, 1, numObjectives, NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL+2);
         // make another sheet which collates the online and off-line per episode means across all trials, for later use in doing t-tests
         excel.moveToNewSheet("Collated", NUM_TRIALS+1); // put this after the summary sheet
-        excel.writeNextRowText("Trial&R^P Online mean&R^A Online mean&R^* Online mean&R^P Offline mean&R^A Offline mean&R^* Offline mean");
+        excel.writeNextRowText("Trial&R^P Online mean&R^A1 Online mean&R^A2 Online mean&R^* Online mean&R^P Offline mean&R^A1 Offline mean&R^A2 Offline mean&R^* Offline mean");
         final int ONLINE_ROW = NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL+1;
         final int OFFLINE_ROW = ONLINE_ROW+1;
         for (int i=0; i<NUM_TRIALS; i++)
@@ -192,7 +194,7 @@ public class MVPExperimentWithExcelOutput
     }
 
     public static void main(String[] args) {
-        MVPExperimentWithExcelOutput theExperiment = new MVPExperimentWithExcelOutput();
+        ApologeticMIExperimentWithExcelOutput theExperiment = new ApologeticMIExperimentWithExcelOutput();
         theExperiment.runExperiment();
         System.exit(0); // shut down the experiment + hopefully everything else launched by the Driver program (server, agent, environment)
     }

@@ -1,17 +1,17 @@
 package agents;
 
 public class Thresholds {
-    public static int[] thresholds;
+    public static double[] thresholds;
 
-    public Thresholds(int[] args) {
+    public Thresholds(double[] args) {
         thresholds = args;
     }
 
-    public static int[] getThresholds() {
+    public static double[] getThresholds() {
         return thresholds;
     }
 
-    public static void setThresholds(int[] thresholds) {
+    public static void setThresholds(double[] thresholds) {
         Thresholds.thresholds = thresholds;
     }
 
@@ -19,11 +19,11 @@ public class Thresholds {
         // Iterate over each objective and subtract the threshold
         for (int i = 0; i < thresholds.length; i++) {
             if (i == justification) {
-                // for the faulted objective, increase the threshold by 10% and round to int
-                thresholds[i] = (int) (thresholds[i]*1.1);
+                // for the faulted objective, increase the threshold by 10%
+                thresholds[i] = thresholds[i]*1.1;
             } else {
-                // for all other objectives, decrease the threshold by 10% and round to int
-                thresholds[i] = (int) (thresholds[i]*0.9);
+                // for all other objectives, decrease the threshold by 10%
+                thresholds[i] =  thresholds[i]*0.9;
             }
         }
     }
