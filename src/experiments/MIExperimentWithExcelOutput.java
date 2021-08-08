@@ -22,13 +22,13 @@ public class MIExperimentWithExcelOutput
     private final double ALPHA = 0.1;
     private final double LAMBDA = 0.95;
     private final double GAMMA = 1.0;
-    private final int NUM_TRIALS = 1;   // usually 20
+    private final int NUM_TRIALS = 2;   // usually 20
 
     // enable this group of declarations for egreedy exploration
-    //private final int EXPLORATION = TLO_LookupTable.EGREEDY;
-    //private final String METHOD_PREFIX = "EGREEDY";
-    //private final String PARAM_CHANGE_STRING = "set_egreedy_parameters";
-    //private double EXPLORATION_PARAMETER = 0.9;
+//    private final int EXPLORATION = TLO_LookupTable.EGREEDY;
+//    private final String METHOD_PREFIX = "EGREEDY";
+//    private final String PARAM_CHANGE_STRING = "set_egreedy_parameters";
+//    private double EXPLORATION_PARAMETER = 0.9;
 
     // enable this group of declarations for softmax-epsilon exploration
     //private int EXPLORATION = TLO_LookupTable.SOFTMAX_ADDITIVE_EPSILON;
@@ -81,7 +81,7 @@ public class MIExperimentWithExcelOutput
 //    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
 //    private final int MAX_EPISODE_LENGTH = 1000;
     private final String ENVIRONMENT_PREFIX = "TableAndCat";
-    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
+    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 4000;
     private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
     private final int MAX_EPISODE_LENGTH = 1000;
 

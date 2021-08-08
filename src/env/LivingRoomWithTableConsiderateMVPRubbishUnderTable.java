@@ -149,7 +149,6 @@ public class LivingRoomWithTableConsiderateMVPRubbishUnderTable implements Envir
     // Execute the specified action, update environmental state and return the reward and new observation
     public Reward_observation_terminal env_step(Action action)
     {
-        // TODO understand this bit
         updatePosition(action.getInt(0));
         // set up new Observation
         Reward_observation_terminal RewardObs = new Reward_observation_terminal();
@@ -190,7 +189,6 @@ public class LivingRoomWithTableConsiderateMVPRubbishUnderTable implements Envir
     // convert the agent's current position into a state index
     public int getState()
     {
-        // TODO from num observations, figure out the getState()
         return agentLocation + (NUM_CELLS * tableLocation)
                 + (NUM_CELLS*NUM_CELLS*carriedRubbish); // times two for number of possible states;
     }

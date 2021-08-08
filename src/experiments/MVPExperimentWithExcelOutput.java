@@ -68,7 +68,7 @@ public class MVPExperimentWithExcelOutput
 //    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
 //    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
 //    private final int MAX_EPISODE_LENGTH = 1000;
-      private final String ENVIRONMENT_PREFIX = "MVPConsiderateOneRubbish";
+//      private final String ENVIRONMENT_PREFIX = "MVPConsiderateOneRubbish";
 //    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
 //    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
 //    private final int MAX_EPISODE_LENGTH = 1000;
@@ -76,14 +76,14 @@ public class MVPExperimentWithExcelOutput
 //    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
 //    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
 //    private final int MAX_EPISODE_LENGTH = 1000;
-//    private final String ENVIRONMENT_PREFIX = "MVPConsiderateBehindTable";
+    private final String ENVIRONMENT_PREFIX = "MVPConsiderateBehindTable";
 //    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
 //    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
 //    private final int MAX_EPISODE_LENGTH = 1000;
     //private final String ENVIRONMENT_PREFIX = "MVPConsiderateWithVase";
-    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 800;
+    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
     private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
-    private final int MAX_EPISODE_LENGTH = 400;
+    private final int MAX_EPISODE_LENGTH = 1000;
 
 
 

@@ -41,7 +41,7 @@ public class MORL_Glue_Driver
 		            //SideEffectLinearWeightedAgent.main(null);
 		            SatisficingMOMIAgent.main(null);
 					//SafetyFirstMOAgent.main(null);
-		            //SatisficingMOAgent.main(null);
+//		            SatisficingMOAgent.main(null);
 		            //LearningRelativeReachabilityAgent.main(null);
 		            //TLO_Agent_Conditioned_On_Actual_Rewards.main(null);
 		            //TLO_Agent_Conditioned_On_Expected_Rewards.main(null);
@@ -74,10 +74,10 @@ public class MORL_Glue_Driver
 		            //StochasticMOMDP.main(null);
 		            //SpaceTraders.main(null);
 					//LivingRoomWithTableConsiderateMVPNoRubbish.main(null);
-					//LivingRoomWithTableConsiderateMVPOneRubbish.main(null);
-					//LivingRoomWithTableConsiderateMVPRubbishUnderTable.main(null);
-					//LivingRoomWithTableConsiderateMVPRubbishBehindTable.main(null);
-					//LivingRoomWithVase.main(null);
+//					LivingRoomWithTableConsiderateMVPOneRubbish.main(null);
+//					LivingRoomWithTableConsiderateMVPRubbishUnderTable.main(null);
+//					LivingRoomWithTableConsiderateMVPRubbishBehindTable.main(null);
+//					LivingRoomWithVase.main(null);
 					LivingRoomWithTableAndCat.main(null);
 
 				  }
@@ -98,6 +98,7 @@ public class MORL_Glue_Driver
 		            //SideEffectExperimentWithExcelOutput.main(null);
 		            //TLOConditionedExperiment.main(null);
 					  MIExperimentWithExcelOutput.main(null);
+//					  MVPExperimentWithExcelOutput.main(null);
 		          }
 		        };
 		    experiment.start();

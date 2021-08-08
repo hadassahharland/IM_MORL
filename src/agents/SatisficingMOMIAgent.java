@@ -32,8 +32,8 @@ public class SatisficingMOMIAgent implements AgentInterface {
 
 	// Problem-specific parameters - at some point I need to refactor the code in such a way that these can be set externally
     double primaryRewardThreshold = -50; // sets threshold on the acceptable minimum level of performance on the primary reward // use high value here to get lex-pa
-    double impactThreshold1 = 1000; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
-    double impactThreshold2 = 1000; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
+    double impactThreshold1 = 0; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
+    double impactThreshold2 = 100; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
 
     double minPrimaryReward = -1000; // the lowest reward obtainable
     double maxPrimaryReward = 50;	// the highest reward obtainable
@@ -84,6 +84,7 @@ public class SatisficingMOMIAgent implements AgentInterface {
     @Override
     public void agent_init(String taskSpecification) {
     	System.out.println("SatisficingMOMIAgent launched");
+        System.out.println("Thresholds: P = " + primaryRewardThreshold + ", A1 = " + impactThreshold1 + ", A2 = " + impactThreshold2 );
         TaskSpecVRLGLUE3 theTaskSpec = new TaskSpecVRLGLUE3(taskSpecification);
 
         numActions = theTaskSpec.getDiscreteActionRange(0).getMax() + 1;
