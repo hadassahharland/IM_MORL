@@ -37,6 +37,8 @@ import org.rlcommunity.rlglue.codec.types.Observation;
 import org.rlcommunity.rlglue.codec.types.Reward;
 import org.rlcommunity.rlglue.codec.types.Reward_observation_terminal;
 import org.rlcommunity.rlglue.codec.util.EnvironmentLoader;
+import java.io.FileWriter;   // Import the FileWriter class
+import java.io.IOException;  // Import the IOException class to handle errors
 
 
 public class LivingRoomWithTableAndCat implements EnvironmentInterface
@@ -98,7 +100,7 @@ public class LivingRoomWithTableAndCat implements EnvironmentInterface
 
     // cat penalty term used in the second impact minimisation reward, based on the cat's presence
     // this penalty is a once-off
-    private final int CAT_PENALTY = -23;
+    private final int CAT_PENALTY = -50;
 
     // define the ordering of the objectives
     private final int NUM_OBJECTIVES = 4;
@@ -122,6 +124,9 @@ public class LivingRoomWithTableAndCat implements EnvironmentInterface
     private String reporting;
     private String sep = ", ";
     private int episodeNum;
+    private int trialNum;
+    private int NUM_ONLINE = 4000;
+    private int NUM_OFFLINE = 10;
 
     // Implemented for use in debugging the TLO-PA agent. Lets me generate the state index for a given state so I can
     // look it up in the agent's Q-table
@@ -144,9 +149,15 @@ public class LivingRoomWithTableAndCat implements EnvironmentInterface
         catTailRunOver = 0;
 //        reporting = "Episode: ";
         episodeNum = 0;
+        trialNum = 0;
 
         System.out.println("TV and Couch Obstacles in place: " + ((TV + COUCH) < 0));
         System.out.println("Penalties: " + DISPLACEMENT_PENALTY + ", " + CAT_PENALTY);
+
+        printToFile("TV and Couch Obstacles in place: " + ((TV + COUCH) < 0));
+        printToFile("Penalties: " + DISPLACEMENT_PENALTY + ", " + CAT_PENALTY);
+
+        printToFile("Begin New Trial: trial " + trialNum);
 //        rubbishRemaining = COUNT_RUBBISH_SPAWN;   // at initialisation, rubbish in room equals total pieces of rubbish
 //        rubbishLocation = RUBBISH_SPAWN;   // list. At initiation, rubbish in room is at spawn.
         terminal = false;
@@ -174,6 +185,12 @@ public class LivingRoomWithTableAndCat implements EnvironmentInterface
         carriedRubbish = 0;   // at initialisation, the agent is not carrying any rubbish
         catTailRunOver = 0;
         episodeNum += 1;
+        if (episodeNum > (NUM_OFFLINE + NUM_ONLINE)) {
+            episodeNum -= (NUM_OFFLINE + NUM_ONLINE);
+            trialNum += 1;
+            printToFile("Begin New Trial: trial " + trialNum);
+        }
+
         reporting = "Episode: " + episodeNum + ", Agent Path: ";
 //        rubbishRemaining = COUNT_RUBBISH_SPAWN;   // at initialisation, rubbish in room equals total pieces of rubbish
 //        rubbishLocation = RUBBISH_SPAWN;   // list. At initiation, rubbish in room is at spawn.
@@ -206,6 +223,7 @@ public class LivingRoomWithTableAndCat implements EnvironmentInterface
         tableLocation = TABLE_START;
         carriedRubbish = 0;   // at initialisation, the agent is not carrying any rubbish
         catTailRunOver = 0;
+        episodeNum = 0;
 //        rubbishRemaining = COUNT_RUBBISH_SPAWN;   // at initialisation, rubbish in room equals total pieces of rubbish
     }
 
@@ -364,7 +382,8 @@ public class LivingRoomWithTableAndCat implements EnvironmentInterface
         }
         else
         {
-            System.out.println(reporting);
+            if (episodeNum%100 == 0) { System.out.println(reporting); }
+            printToFile(reporting);
             rewards.setDouble(TIDY_REWARD, 50); // reward for reaching goal
             rewards.setDouble(PERFORMANCE_REWARD, 50+TABLE_PENALTY[tableLocation] + CAT_PENALTY*catTail);
         }
@@ -379,6 +398,18 @@ public class LivingRoomWithTableAndCat implements EnvironmentInterface
     {
         EnvironmentLoader theLoader = new EnvironmentLoader(new LivingRoomWithTableAndCat());
         theLoader.run();
+    }
+
+    public void printToFile(String str) {
+        try {
+            FileWriter myWriter = new FileWriter("AdditionalConsoleOutput.txt", true);
+            myWriter.write(str + System.lineSeparator());
+            myWriter.close();
+//            System.out.println("Successfully wrote to the file.");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 
 }

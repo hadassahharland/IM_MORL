@@ -1,5 +1,9 @@
 import experiments.MIExperimentWithExcelOutput;
 import experiments.MVPExperimentWithExcelOutput;
+import java.io.File;  // Import the File class
+import java.io.FileWriter;   // Import the FileWriter class
+import java.io.IOException;  // Import the IOException class to handle errors
+
 
 import agents.*;
 import env.*;
@@ -22,6 +26,29 @@ public class MORL_Glue_Driver
 			{
 				e.printStackTrace();
 			}
+
+			// Create Output Catcher File
+		try {
+			File output = new File("AdditionalConsoleOutput.txt");
+			if (output.createNewFile()) {
+				System.out.println("File created: " + output.getName());
+			} else {
+				System.out.println("File will be overwritten");
+				output.delete();
+				output.createNewFile();
+				System.out.println("File created: " + output.getName());
+			}
+		} catch (IOException e) {
+			System.out.println("An error occurred.");
+			e.printStackTrace();
+		}
+
+//		String agentString;
+//		String environmentString;
+//		String experimentString;
+
+
+
 		   // launch agent in its own thread
 			Thread agent = 
 			new Thread(){

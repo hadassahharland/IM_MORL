@@ -22,7 +22,7 @@ public class MIExperimentWithExcelOutput
     private final double ALPHA = 0.1;
     private final double LAMBDA = 0.95;
     private final double GAMMA = 1.0;
-    private final int NUM_TRIALS = 2;   // usually 20
+    private final int NUM_TRIALS = 1;   // usually 20
 
     // enable this group of declarations for egreedy exploration
 //    private final int EXPLORATION = TLO_LookupTable.EGREEDY;
