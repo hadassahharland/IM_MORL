@@ -44,46 +44,13 @@ public class ApologeticMIExperimentWithExcelOutput
 
 
     // alter these declarations to match the Environment being used
-    // Settings for the BreakableBottles task
-    //private final String ENVIRONMENT_PREFIX = "Breakable";
-    //private final int NUM_ONLINE_EPISODES_PER_TRIAL = 5000;
-    //private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 100;
-    //private final int MAX_EPISODE_LENGTH = 1000;
-    // Settings for the UnbreakableBottles task
-//    private final String ENVIRONMENT_PREFIX = "Doors";  //"MVPConsiderateNoRubbish";
-//    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 2000;
-//    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 100;
-//    private final int MAX_EPISODE_LENGTH = 1000;
-//     Settings for the Sokoban task
-//    private final String ENVIRONMENT_PREFIX = "Sokoban";
-//    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
-//    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 1;
-//    private final int MAX_EPISODE_LENGTH = 1000;
-    // Settings for the Doors task
-    //private final String ENVIRONMENT_PREFIX = "Doors";
-    //private final int NUM_ONLINE_EPISODES_PER_TRIAL = 5000;
-    //private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 1;
-    //private final int MAX_EPISODE_LENGTH = 1000;
-//    private final String ENVIRONMENT_PREFIX = "MVPConsiderateNoRubbish";
-//    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
-//    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
-//    private final int MAX_EPISODE_LENGTH = 1000;
-//      private final String ENVIRONMENT_PREFIX = "MVPConsiderateOneRubbish";
-//    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
-//    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
-//    private final int MAX_EPISODE_LENGTH = 1000;
-//    private final String ENVIRONMENT_PREFIX = "MVPConsiderateUnderTable";
-//    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
-//    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
-//    private final int MAX_EPISODE_LENGTH = 1000;
-//    private final String ENVIRONMENT_PREFIX = "MVPConsiderateBehindTable";
-//    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
-//    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
-//    private final int MAX_EPISODE_LENGTH = 1000;
+
     private final String ENVIRONMENT_PREFIX = "TableAndCat";
-    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
-    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
-    private final int MAX_EPISODE_LENGTH = 1000;
+    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 2;
+    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 3;
+    private final int NUM_ONLINE2_EPISODES_PER_TRIAL = 4;
+    private final int NUM_OFFLINE2_EPISODES_PER_TRIAL = 5;
+    private final int MAX_EPISODE_LENGTH = 10;
 
 
 
@@ -142,13 +109,17 @@ public class ApologeticMIExperimentWithExcelOutput
             RLGlue.RL_agent_message("freeze_learning");		// turn off learning and exploration for offline assessment of the final policy
             for (int episodeNum=0; episodeNum<NUM_OFFLINE_EPISODES_PER_TRIAL; episodeNum++)
             {
-                // turn on debugging for the final offline run
-                if (episodeNum==NUM_OFFLINE_EPISODES_PER_TRIAL-1)
-                {
-                    //RLGlue.RL_env_message("start-debugging");
-                    //RLGlue.RL_agent_message("start-debugging");
-                }
                 saveReward("Offline&"+(1+episodeNum),runEpisode(MAX_EPISODE_LENGTH));
+            }
+            RLGlue.RL_agent_message("unfreeze_learning");		// turn off learning and exploration for offline assessment of the final policy
+            for (int episodeNum=0; episodeNum<NUM_ONLINE2_EPISODES_PER_TRIAL; episodeNum++)
+            {
+                saveReward("Online2&"+(1+episodeNum),runEpisode(MAX_EPISODE_LENGTH));
+            }
+            RLGlue.RL_agent_message("freeze_learning");		// turn off learning and exploration for offline assessment of the final policy
+            for (int episodeNum=0; episodeNum<NUM_OFFLINE2_EPISODES_PER_TRIAL; episodeNum++)
+            {
+                saveReward("Offline2&"+(1+episodeNum),runEpisode(MAX_EPISODE_LENGTH));
             }
             RLGlue.RL_env_message("stop-debugging");
             RLGlue.RL_agent_message("stop-debugging");
@@ -163,6 +134,16 @@ public class ApologeticMIExperimentWithExcelOutput
                     + "&AVERAGE(" + excel.getAddress(4,NUM_ONLINE_EPISODES_PER_TRIAL+1) + ":" + excel.getAddress(4,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL) + ")"
                     + "&AVERAGE(" + excel.getAddress(5,NUM_ONLINE_EPISODES_PER_TRIAL+1) + ":" + excel.getAddress(5,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL) + ")";
             excel.writeNextRowTextAndFormula("Mean over all offline episodes& ", formulas);
+            formulas = "AVERAGE(" + excel.getAddress(2,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL+1) + ":" + excel.getAddress(2,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL+NUM_ONLINE2_EPISODES_PER_TRIAL) + ")"
+                    + "&AVERAGE(" + excel.getAddress(3,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL+1) + ":" + excel.getAddress(3,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL+NUM_ONLINE2_EPISODES_PER_TRIAL) + ")"
+                    + "&AVERAGE(" + excel.getAddress(4,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL+1) + ":" + excel.getAddress(4,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL+NUM_ONLINE2_EPISODES_PER_TRIAL) + ")"
+                    + "&AVERAGE(" + excel.getAddress(5,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL+1) + ":" + excel.getAddress(5,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL+NUM_ONLINE2_EPISODES_PER_TRIAL) + ")";
+            excel.writeNextRowTextAndFormula("Mean over all online2 episodes& ", formulas);
+            formulas = "AVERAGE(" + excel.getAddress(2,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL+NUM_ONLINE2_EPISODES_PER_TRIAL+1) + ":" + excel.getAddress(2,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL+NUM_ONLINE2_EPISODES_PER_TRIAL+NUM_OFFLINE2_EPISODES_PER_TRIAL) + ")"
+                    + "&AVERAGE(" + excel.getAddress(3,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL+NUM_ONLINE2_EPISODES_PER_TRIAL+1) + ":" + excel.getAddress(3,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL+NUM_ONLINE2_EPISODES_PER_TRIAL+NUM_OFFLINE2_EPISODES_PER_TRIAL) + ")"
+                    + "&AVERAGE(" + excel.getAddress(4,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL+NUM_ONLINE2_EPISODES_PER_TRIAL+1) + ":" + excel.getAddress(4,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL+NUM_ONLINE2_EPISODES_PER_TRIAL+NUM_OFFLINE2_EPISODES_PER_TRIAL) + ")"
+                    + "&AVERAGE(" + excel.getAddress(5,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL+NUM_ONLINE2_EPISODES_PER_TRIAL+1) + ":" + excel.getAddress(5,NUM_ONLINE_EPISODES_PER_TRIAL+NUM_OFFLINE_EPISODES_PER_TRIAL+NUM_ONLINE2_EPISODES_PER_TRIAL+NUM_OFFLINE2_EPISODES_PER_TRIAL) + ")";
+            excel.writeNextRowTextAndFormula("Mean over all offline2 episodes& ", formulas);
 
             // Get Timestamp
             Timestamp ts = new Timestamp(System.currentTimeMillis());
@@ -198,5 +179,6 @@ public class ApologeticMIExperimentWithExcelOutput
         theExperiment.runExperiment();
         System.exit(0); // shut down the experiment + hopefully everything else launched by the Driver program (server, agent, environment)
     }
+
 }
 

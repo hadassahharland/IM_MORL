@@ -33,9 +33,9 @@ import java.util.Stack;
 public class SatisficingMOMIAgent implements AgentInterface {
 
 	// Problem-specific parameters - at some point I need to refactor the code in such a way that these can be set externally
-    double primaryRewardThreshold = -50; // sets threshold on the acceptable minimum level of performance on the primary reward // use high value here to get lex-pa
-    double impactThreshold1 = 10; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
-    double impactThreshold2 = 10; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
+    double primaryRewardThreshold = 0; // sets threshold on the acceptable minimum level of performance on the primary reward // use high value here to get lex-pa
+    double impactThreshold1 = 0; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
+    double impactThreshold2 = 0; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
 
     double minPrimaryReward = -1000; // the lowest reward obtainable
     double maxPrimaryReward = 50;	// the highest reward obtainable
@@ -388,6 +388,11 @@ public class SatisficingMOMIAgent implements AgentInterface {
             policyFrozen = true;
             System.out.println("Learning has been freezed");
             return "message understood, policy frozen";
+        }
+        if (message.equals("unfreeze_learning")) {
+            policyFrozen = false;
+            System.out.println("Learning has been unfrozen");
+            return "message understood, policy unfrozen";
         }
         else if (message.startsWith("change_weights")){
             System.out.print("SatisficingMOAgent: Weights can not be changed");

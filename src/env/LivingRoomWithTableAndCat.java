@@ -190,7 +190,7 @@ public class LivingRoomWithTableAndCat implements EnvironmentInterface
             trialNum += 1;
             printToFile("Begin New Trial: trial " + trialNum);
         }
-
+        printToFile(reporting);
         reporting = "Episode: " + episodeNum + ", Agent Path: ";
 //        rubbishRemaining = COUNT_RUBBISH_SPAWN;   // at initialisation, rubbish in room equals total pieces of rubbish
 //        rubbishLocation = RUBBISH_SPAWN;   // list. At initiation, rubbish in room is at spawn.
