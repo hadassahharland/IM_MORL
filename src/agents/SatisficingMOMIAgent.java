@@ -34,8 +34,8 @@ public class SatisficingMOMIAgent implements AgentInterface {
 
 	// Problem-specific parameters - at some point I need to refactor the code in such a way that these can be set externally
     double primaryRewardThreshold = 0; // sets threshold on the acceptable minimum level of performance on the primary reward // use high value here to get lex-pa
-    double impactThreshold1 = 0; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
-    double impactThreshold2 = 0; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
+    double impactThreshold1 = -50; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
+    double impactThreshold2 = -50; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
 
     double minPrimaryReward = -1000; // the lowest reward obtainable
     double maxPrimaryReward = 50;	// the highest reward obtainable
@@ -74,9 +74,12 @@ public class SatisficingMOMIAgent implements AgentInterface {
 
     int numOfSteps;
     int numEpisodes;
+//    int numTrial;
+    boolean vfSaved = false;
     double accumulatedPrimaryReward; // needs to be stored, and then discretised and used to augment the environmental state
     double accumulatedImpact1; // sum the impact reward received so far
     double accumulatedImpact2; // sum the impact reward received so far
+
     
     //DEBUGGING STUFF
     int saVisits[][];
@@ -89,12 +92,14 @@ public class SatisficingMOMIAgent implements AgentInterface {
     	String str = "Thresholds: P = " + primaryRewardThreshold + ", A1 = " + impactThreshold1 + ", A2 = " + impactThreshold2;
         System.out.println(str);
         printToFile(str);
+//        numTrial = 0;
 
         TaskSpecVRLGLUE3 theTaskSpec = new TaskSpecVRLGLUE3(taskSpecification);
 
         numActions = theTaskSpec.getDiscreteActionRange(0).getMax() + 1;
         numEnvtStates = (theTaskSpec.getDiscreteObservationRange(0).getMax()+1);
-        numStates = numEnvtStates * numDiscretisationsOfReward; // agent state = environmental-state U accumulated-primary-reward
+//        numStates = numEnvtStates * numDiscretisationsOfReward; // agent state = environmental-state U accumulated-primary-reward
+        numStates = numEnvtStates * 3; // agent state = environmental-state U accumulated-primary-reward
         numOfObjectives = theTaskSpec.getNumOfObjectives();
         vf = new SatisficingMILookupTable(numOfObjectives, numActions, numStates, 0, primaryRewardThreshold, impactThreshold1, impactThreshold2);
 
@@ -112,13 +117,16 @@ public class SatisficingMOMIAgent implements AgentInterface {
     
     private void resetForNewTrial()
     {
+//        vf.saveValueFunction("ValueFunction_Trial" + numTrial);
+//        numTrial += 1;
     	policyFrozen = false;
+    	vfSaved = false;
         numOfSteps = 0;
         numEpisodes = 0;  
         epsilon = startingEpsilon;
         temperature = startingTemperature;
         // reset Q-values
-        vf.resetQValues(initQValues);
+//        vf.loadValueFunction("ValueFunction_Trial0");
         accumulatedPrimaryReward = 0.0; accumulatedImpact1 = 0.0; accumulatedImpact2 = 0.0;
         vf.setAccumulatedReward(accumulatedPrimaryReward);
         vf.setAccumulatedImpact1(accumulatedImpact1);
@@ -145,7 +153,13 @@ public class SatisficingMOMIAgent implements AgentInterface {
     private int getAugmentedStateIndex(Observation observation)
     {
     	int observedState = stateConverter.getStateNumber( observation );
-    	int rewardState = (int)Math.floor((accumulatedPrimaryReward-minPrimaryReward)/discretisationGranularity);
+//    	int rewardState = (int)Math.floor((accumulatedPrimaryReward-minPrimaryReward)/discretisationGranularity);
+
+        int rewardState;
+        if (accumulatedPrimaryReward > 0) { rewardState = 0; }
+        else if (accumulatedPrimaryReward > -150) { rewardState = 1; }
+        else { rewardState = 2; }
+
     	int augmentedState = rewardState * numEnvtStates + observedState;
     	if (debugging)
     	{
@@ -246,6 +260,7 @@ public class SatisficingMOMIAgent implements AgentInterface {
             }
             action = getAction(state);
         } else {// if frozen, don't learn and follow greedy policy
+
             action = greedyAction;
         }
 
@@ -389,6 +404,16 @@ public class SatisficingMOMIAgent implements AgentInterface {
             System.out.println("Learning has been freezed");
             return "message understood, policy frozen";
         }
+        if (message.equals("save_vf")) {
+            vfSaved = true;
+//            if (!vfSaved) {
+                vf.saveValueFunction("ValueFunction.txt");
+//                vfSaved = true;
+//            }
+            System.out.println("Value Function has been saved");
+            return "message understood, vf saved";
+        }
+
         if (message.equals("unfreeze_learning")) {
             policyFrozen = false;
             System.out.println("Learning has been unfrozen");

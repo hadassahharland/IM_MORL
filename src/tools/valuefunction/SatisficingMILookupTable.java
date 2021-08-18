@@ -131,16 +131,16 @@ public class SatisficingMILookupTable extends LookupTable implements ActionSelec
     }
     
      public void saveValueFunction(String theFileName) {
-    	System.out.println(theFileName);
-        for (int s = 0; s < numberOfStates; s++) {
-            for (int a = 0; a < numberOfActions; a++) {
-            	System.out.print("State "+s+"\tAction "+a+"\t");         	
-            	for (int i = 0; i < numberOfObjectives; i++) {
-                    System.out.print(valueFunction.get(i)[a][s] +"\t");
-                }
-            	System.out.println();
-            }                
-        }  	
+//    	System.out.println(theFileName);
+//        for (int s = 0; s < numberOfStates; s++) {
+//            for (int a = 0; a < numberOfActions; a++) {
+//            	System.out.print("State "+s+"\tAction "+a+"\t");
+//            	for (int i = 0; i < numberOfObjectives; i++) {
+//                    System.out.print(valueFunction.get(i)[a][s] +"\t");
+//                }
+//            	System.out.println();
+//            }
+//        }
         try {
             DataOutputStream DO = new DataOutputStream(new FileOutputStream(new File(theFileName)));
             for (int i = 0; i < numberOfObjectives; i++) {

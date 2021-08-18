@@ -125,8 +125,8 @@ public class MORL_Glue_Driver
 		            //SideEffectExperiment.main(null);
 		            //SideEffectExperimentWithExcelOutput.main(null);
 		            //TLOConditionedExperiment.main(null);
-//					  MIExperimentWithExcelOutput.main(null);
-					  ApologeticMIExperimentWithExcelOutput.main(null);
+					  MIExperimentWithExcelOutput.main(null);
+//					  ApologeticMIExperimentWithExcelOutput.main(null);
 //					  MVPExperimentWithExcelOutput.main(null);
 		          }
 		        };
