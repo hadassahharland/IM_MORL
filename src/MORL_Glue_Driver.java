@@ -1,4 +1,5 @@
 import experiments.ApologeticMIExperimentWithExcelOutput;
+import experiments.FlexibleMIExperimentWithExcelOutput;
 import experiments.MIExperimentWithExcelOutput;
 import experiments.MVPExperimentWithExcelOutput;
 import java.io.File;  // Import the File class
@@ -125,7 +126,8 @@ public class MORL_Glue_Driver
 		            //SideEffectExperiment.main(null);
 		            //SideEffectExperimentWithExcelOutput.main(null);
 		            //TLOConditionedExperiment.main(null);
-					  MIExperimentWithExcelOutput.main(null);
+//					  MIExperimentWithExcelOutput.main(null);
+					  FlexibleMIExperimentWithExcelOutput.main(null);
 //					  ApologeticMIExperimentWithExcelOutput.main(null);
 //					  MVPExperimentWithExcelOutput.main(null);
 		          }

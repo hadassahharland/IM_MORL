@@ -81,7 +81,7 @@ public class MIExperimentWithExcelOutput
 //    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
 //    private final int MAX_EPISODE_LENGTH = 1000;
     private final String ENVIRONMENT_PREFIX = "TableAndCat";
-    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 4000;
+    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 0;
     private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
     private final int MAX_EPISODE_LENGTH = 1000;
 
@@ -139,6 +139,8 @@ public class MIExperimentWithExcelOutput
             {
                 saveReward("Online&"+(1+episodeNum),runEpisode(MAX_EPISODE_LENGTH));
             }
+//            RLGlue.RL_agent_message("save_vf");		// save the value function
+            RLGlue.RL_agent_message("load_vf");		// load the value function
             RLGlue.RL_agent_message("freeze_learning");		// turn off learning and exploration for offline assessment of the final policy
             for (int episodeNum=0; episodeNum<NUM_OFFLINE_EPISODES_PER_TRIAL; episodeNum++)
             {

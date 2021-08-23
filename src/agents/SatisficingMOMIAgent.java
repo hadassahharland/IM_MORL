@@ -33,7 +33,7 @@ import java.util.Stack;
 public class SatisficingMOMIAgent implements AgentInterface {
 
 	// Problem-specific parameters - at some point I need to refactor the code in such a way that these can be set externally
-     double [] thresholds = {-50, -50, -50};
+//     double [] thresholds = {-50, -50, -50};
      int thresholdIndex = 0;
 
      double [][] allThresholds = {
@@ -56,9 +56,9 @@ public class SatisficingMOMIAgent implements AgentInterface {
 //    double impactThreshold1 = thresholds[1]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
 //    double impactThreshold2 = thresholds[2]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
 
-    double primaryRewardThreshold = allThresholds[thresholdIndex][0]; // sets threshold on the acceptable minimum level of performance on the primary reward // use high value here to get lex-pa
-    double impactThreshold1 = allThresholds[thresholdIndex][1]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
-    double impactThreshold2 = allThresholds[thresholdIndex][2]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
+    double primaryRewardThreshold; // = allThresholds[thresholdIndex][0]; // sets threshold on the acceptable minimum level of performance on the primary reward // use high value here to get lex-pa
+    double impactThreshold1; // = allThresholds[thresholdIndex][1]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
+    double impactThreshold2; // = allThresholds[thresholdIndex][2]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
 
     double minPrimaryReward = -1000; // the lowest reward obtainable
     double maxPrimaryReward = 50;	// the highest reward obtainable
@@ -112,10 +112,6 @@ public class SatisficingMOMIAgent implements AgentInterface {
     @Override
     public void agent_init(String taskSpecification) {
     	System.out.println("SatisficingMOMIAgent launched");
-    	String str = "Thresholds: P = " + primaryRewardThreshold + ", A1 = " + impactThreshold1 + ", A2 = " + impactThreshold2;
-        System.out.println(str);
-        printToFile(str);
-//        numTrial = 0;
 
         TaskSpecVRLGLUE3 theTaskSpec = new TaskSpecVRLGLUE3(taskSpecification);
 
@@ -125,6 +121,11 @@ public class SatisficingMOMIAgent implements AgentInterface {
         numStates = numEnvtStates * 3; // agent state = environmental-state U accumulated-primary-reward
         numOfObjectives = theTaskSpec.getNumOfObjectives();
         vf = new SatisficingMILookupTable(numOfObjectives, numActions, numStates, 0, primaryRewardThreshold, impactThreshold1, impactThreshold2);
+
+        refreshThresholds();
+        String str = "Thresholds: P = " + primaryRewardThreshold + ", A1 = " + impactThreshold1 + ", A2 = " + impactThreshold2;
+        System.out.println(str);
+        printToFile(str);
 
         random = new Random(471);
         tracingStack = new Stack<>();
@@ -137,7 +138,7 @@ public class SatisficingMOMIAgent implements AgentInterface {
         saVisits= new int[numStates][numActions];
 
     }
-    
+
     private void resetForNewTrial()
     {
 //        vf.saveValueFunction("ValueFunction_Trial" + numTrial);
@@ -416,6 +417,14 @@ public class SatisficingMOMIAgent implements AgentInterface {
         return valueFunction.isGreedy(state,action);  	
     }
 
+    private void refreshThresholds() {
+        primaryRewardThreshold = allThresholds[thresholdIndex][0]; // sets threshold on the acceptable minimum level of performance on the primary reward // use high value here to get lex-pa
+        impactThreshold1 = allThresholds[thresholdIndex][1]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
+        impactThreshold2 = allThresholds[thresholdIndex][2]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
+        double[] thresholds = {primaryRewardThreshold, impactThreshold1, impactThreshold2};
+        vf.setThresholds(thresholds);
+    }
+
     @Override
     public String agent_message(String message) {
     	if (message.equals("get_agent_name"))
@@ -424,7 +433,7 @@ public class SatisficingMOMIAgent implements AgentInterface {
     	}
         if (message.equals("freeze_learning")) {
             policyFrozen = true;
-            System.out.println("Learning has been freezed");
+            System.out.println("Learning is paused");
             return "message understood, policy frozen";
         }
         if (message.equals("save_vf")) {
@@ -446,12 +455,14 @@ public class SatisficingMOMIAgent implements AgentInterface {
         }
         if (message.equals("unfreeze_learning")) {
             policyFrozen = false;
-            System.out.println("Learning has been unfrozen");
+            System.out.println("Learning has been resumed");
             return "message understood, policy unfrozen";
         }
-        if (message.equals("iterate_threshold")) {
-            thresholdIndex += 1;
+        if (message.startsWith("update_threshold:")) {
+            String[] parts = message.split(":");
+            thresholdIndex = Integer.valueOf(parts[1]).intValue();
             System.out.println("Threshold Index: " + thresholdIndex);
+            refreshThresholds();
             return "message understood, policy unfrozen";
         }
         else if (message.startsWith("change_weights")){

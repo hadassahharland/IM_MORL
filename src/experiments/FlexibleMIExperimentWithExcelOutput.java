@@ -84,9 +84,12 @@ public class FlexibleMIExperimentWithExcelOutput
 //    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 0;
 //    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
     // Introducing "series" as a set of episodes of consistent behaviour within a trial
-    private final int [] NUM_EPISODES_PER_SERIES = {0, 10};
+    private final int [] NUM_EPISODES_PER_SERIES = {0, 10, 10, 10, 10, 10, 10, 10, 10};
+    private final boolean [] SERIES_IS_ONLINE = {true, false, false, false, false, false, false, false, false};
+    private final int[] SERIES_THRESHOLD_INDEX = {0, 0, 1, 2, 3, 4, 5, 6, 7};
+
+
     private final int EXPLORATION_DECAY_LENGTH = 4000; // Sub in for parameters measured off learning
-    private final boolean [] SERIES_IS_ONLINE = {true, false};
     private final int MAX_EPISODE_LENGTH = 1000;
 
 
@@ -111,6 +114,10 @@ public class FlexibleMIExperimentWithExcelOutput
 
     public void runExperiment() {
 
+        if (!(NUM_EPISODES_PER_SERIES.length == SERIES_IS_ONLINE.length & NUM_EPISODES_PER_SERIES.length == SERIES_THRESHOLD_INDEX.length)) {
+            System.out.println("ERROR!!! Experiment Series settings inconsistent lengths!");
+            System.exit(0); // shut down the experiment + hopefully everything else launched by the Driver program (server, agent, environment)
+        }
         // Get Timestamp
         long bt = System.currentTimeMillis();
         Timestamp bts = new Timestamp(bt);
@@ -147,9 +154,9 @@ public class FlexibleMIExperimentWithExcelOutput
                 // set up labelling
 
                 // if the first series is online, train a new vf from scratch, else load
-                if (!(seriesNum == 0 & SERIES_IS_ONLINE[seriesNum]) ) {
+//                if (!(seriesNum == 0 & SERIES_IS_ONLINE[seriesNum]) ) {
                     RLGlue.RL_agent_message("load_vf");        // load the value function
-                }
+//                }
                 String lab;
                 if (SERIES_IS_ONLINE[seriesNum]) {
                     lab = "Online" + seriesNum + "&";
@@ -158,6 +165,10 @@ public class FlexibleMIExperimentWithExcelOutput
                     lab = "Offline" + seriesNum + "&";
                     RLGlue.RL_agent_message("freeze_learning");		// turn off learning and exploration for offline assessment of the final policy
                 }
+
+                // Set the threshold used
+                RLGlue.RL_agent_message("update_threshold:" + SERIES_THRESHOLD_INDEX[seriesNum]);
+
 
                 for (int episodeNum = 0; episodeNum < NUM_EPISODES_PER_SERIES[seriesNum]; episodeNum++) {
 
