@@ -33,8 +33,7 @@ import java.util.Stack;
 public class SatisficingMOMIAgent implements AgentInterface {
 
 	// Problem-specific parameters - at some point I need to refactor the code in such a way that these can be set externally
-//     double [] thresholds = {-50, -50, -50};
-     int thresholdIndex = 0;
+     int thresholdIndex = 4;  // provide the threshold to initialise at
 
      double [][] allThresholds = {
              {0, 0, 0},
@@ -47,6 +46,12 @@ public class SatisficingMOMIAgent implements AgentInterface {
              {-50, -50, -50}
      };
 
+     // Threshold adjustment details
+    int [] delta = {10, 10, 10}; // The learning rate of the apology framework
+    int [] thresholdMinimum = {-1000, -50, -50}; // The minimum value that each threshold can take
+    int [] thresholdMaximum = {50, 50, 50}; // The maximum value that each threshold can take
+
+
 
 //    double primaryRewardThreshold = 0; // sets threshold on the acceptable minimum level of performance on the primary reward // use high value here to get lex-pa
 //    double impactThreshold1 = 0; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
@@ -56,9 +61,9 @@ public class SatisficingMOMIAgent implements AgentInterface {
 //    double impactThreshold1 = thresholds[1]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
 //    double impactThreshold2 = thresholds[2]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
 
-    double primaryRewardThreshold; // = allThresholds[thresholdIndex][0]; // sets threshold on the acceptable minimum level of performance on the primary reward // use high value here to get lex-pa
-    double impactThreshold1; // = allThresholds[thresholdIndex][1]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
-    double impactThreshold2; // = allThresholds[thresholdIndex][2]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
+    double primaryRewardThreshold = allThresholds[thresholdIndex][0]; // sets threshold on the acceptable minimum level of performance on the primary reward // use high value here to get lex-pa
+    double impactThreshold1 = allThresholds[thresholdIndex][1]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
+    double impactThreshold2 = allThresholds[thresholdIndex][2]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
 
     double minPrimaryReward = -1000; // the lowest reward obtainable
     double maxPrimaryReward = 50;	// the highest reward obtainable
@@ -425,6 +430,13 @@ public class SatisficingMOMIAgent implements AgentInterface {
         vf.setThresholds(thresholds);
     }
 
+    private void adjustThresholds(double[] thresholds) {
+        primaryRewardThreshold = thresholds[0]; // sets threshold on the acceptable minimum level of performance on the primary reward // use high value here to get lex-pa
+        impactThreshold1 = thresholds[1]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
+        impactThreshold2 = thresholds[2]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
+        vf.setThresholds(thresholds);
+    }
+
     @Override
     public String agent_message(String message) {
     	if (message.equals("get_agent_name"))
@@ -463,8 +475,33 @@ public class SatisficingMOMIAgent implements AgentInterface {
             thresholdIndex = Integer.valueOf(parts[1]).intValue();
             System.out.println("Threshold Index: " + thresholdIndex);
             refreshThresholds();
-            return "message understood, policy unfrozen";
+            return "message understood, threshold updated";
         }
+        if (message.startsWith("adjust_threshold:")) {
+            String[] parts = message.split(":");
+            int thresholdAdjustIndex = Integer.valueOf(parts[1]).intValue();
+
+            // list current threshold values
+            double [] thresholds = {primaryRewardThreshold, impactThreshold1, impactThreshold2};
+
+            for (int i=0; i<thresholds.length; i++) {
+                if (i == thresholdAdjustIndex) {
+                    thresholds[i] += 2*delta[i];
+                    // Only need to check maximum if the threshold is increased
+                    if (thresholds[i] > thresholdMaximum[i]) { thresholds[i] = thresholdMaximum[i]; }
+                } else {
+                    thresholds[i] += -1*delta[i];
+                    // Only need to check minimum if the threshold is decreased
+                    if (thresholds[i] < thresholdMinimum[i]) { thresholds[i] = thresholdMinimum[i]; }
+                }
+            }
+            adjustThresholds(thresholds);
+
+//            System.out.println("Threshold Index: " + thresholdIndex);
+//            refreshThresholds();
+            return "message understood, threshold adjusted";
+        }
+
         else if (message.startsWith("change_weights")){
             System.out.print("SatisficingMOAgent: Weights can not be changed");
             return "SatisficingMOAgent: Weights can not be changed";

@@ -84,9 +84,38 @@ public class FlexibleMIExperimentWithExcelOutput
 //    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 0;
 //    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
     // Introducing "series" as a set of episodes of consistent behaviour within a trial
-    private final int [] NUM_EPISODES_PER_SERIES = {0, 10, 10, 10, 10, 10, 10, 10, 10};
+    private final int [] NUM_EPISODES_PER_SERIES = {4000, 10, 10, 10, 10, 10, 10, 10, 10};
     private final boolean [] SERIES_IS_ONLINE = {true, false, false, false, false, false, false, false, false};
-    private final int[] SERIES_THRESHOLD_INDEX = {0, 0, 1, 2, 3, 4, 5, 6, 7};
+    private final int[] SERIES_THRESHOLD_INDEX = {4, 0, 1, 2, 3, 4, 5, 6, 7};
+
+//    private final int [] NUM_EPISODES_PER_SERIES = {4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 10, 10, 10, 10, 10, 10, 10, 10};
+//    private final boolean [] SERIES_IS_ONLINE = {true, true, true, true, true, true, true, true, false, false, false, false, false, false, false, false};
+//    private final int[] SERIES_THRESHOLD_INDEX = {0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7};
+
+//    private final int [] NUM_EPISODES_PER_SERIES = {4000, 10, 10, 10, 10, 10, 10, 10, 10,
+//            4, 10, 10, 10, 10, 10, 10, 10, 10,
+//            4, 10, 10, 10, 10, 10, 10, 10, 10,
+//            4, 10, 10, 10, 10, 10, 10, 10, 10,
+//            4, 10, 10, 10, 10, 10, 10, 10, 10,
+//            4, 10, 10, 10, 10, 10, 10, 10, 10,
+//            4, 10, 10, 10, 10, 10, 10, 10, 10,
+//            4, 10, 10, 10, 10, 10, 10, 10, 10};
+//    private final boolean [] SERIES_IS_ONLINE = {true, false, false, false, false, false, false, false, false,
+//            true, false, false, false, false, false, false, false, false,
+//            true, false, false, false, false, false, false, false, false,
+//            true, false, false, false, false, false, false, false, false,
+//            true, false, false, false, false, false, false, false, false,
+//            true, false, false, false, false, false, false, false, false,
+//            true, false, false, false, false, false, false, false, false,
+//            true, false, false, false, false, false, false, false, false};
+//    private final int[] SERIES_THRESHOLD_INDEX = {0, 0, 1, 2, 3, 4, 5, 6, 7,
+//            1, 0, 1, 2, 3, 4, 5, 6, 7,
+//            2, 0, 1, 2, 3, 4, 5, 6, 7,
+//            3, 0, 1, 2, 3, 4, 5, 6, 7,
+//            4, 0, 1, 2, 3, 4, 5, 6, 7,
+//            5, 0, 1, 2, 3, 4, 5, 6, 7,
+//            6, 0, 1, 2, 3, 4, 5, 6, 7,
+//            7, 0, 1, 2, 3, 4, 5, 6, 7};
 
 
     private final int EXPLORATION_DECAY_LENGTH = 4000; // Sub in for parameters measured off learning
@@ -154,9 +183,9 @@ public class FlexibleMIExperimentWithExcelOutput
                 // set up labelling
 
                 // if the first series is online, train a new vf from scratch, else load
-//                if (!(seriesNum == 0 & SERIES_IS_ONLINE[seriesNum]) ) {
+                if (!(seriesNum == 0 & SERIES_IS_ONLINE[seriesNum]) ) {
                     RLGlue.RL_agent_message("load_vf");        // load the value function
-//                }
+                }
                 String lab;
                 if (SERIES_IS_ONLINE[seriesNum]) {
                     lab = "Online" + seriesNum + "&";
