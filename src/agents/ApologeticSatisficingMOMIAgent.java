@@ -20,8 +20,7 @@ import org.rlcommunity.rlglue.codec.util.AgentLoader;
 import tools.staterep.DummyStateConverter;
 import tools.staterep.interfaces.StateConverter;
 import tools.traces.StateActionIndexPair;
-import tools.valuefunction.ApologeticSatisficingMILookupTable;
-import tools.valuefunction.SatisficingMILookupTable;
+import tools.valuefunction.notInUse.ApologeticSatisficingMILookupTable;
 import tools.valuefunction.TLO_LookupTable;
 import tools.valuefunction.interfaces.ActionSelector;
 
@@ -212,7 +211,8 @@ public class ApologeticSatisficingMOMIAgent implements AgentInterface {
     public Action agent_step(Reward reward, Observation observation) 
     {
         // Before undertaking next step, assess
-        conscience.onNextAction(reward, actor);
+        double[] accumulatedRewards = {accumulatedPrimaryReward, accumulatedImpact1, accumulatedImpact2, 0};
+        conscience.onNextAction(accumulatedRewards, actor);
 
         numOfSteps++;
         accumulatedPrimaryReward += reward.getDouble(0); // get the primary reward

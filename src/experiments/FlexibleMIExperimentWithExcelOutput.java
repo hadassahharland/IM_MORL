@@ -86,11 +86,15 @@ public class FlexibleMIExperimentWithExcelOutput
     // Introducing "series" as a set of episodes of consistent behaviour within a trial
     private final int [] NUM_EPISODES_PER_SERIES = {4000, 10, 10, 10, 10, 10, 10, 10, 10};
     private final boolean [] SERIES_IS_ONLINE = {true, false, false, false, false, false, false, false, false};
-    private final int[] SERIES_THRESHOLD_INDEX = {4, 0, 1, 2, 3, 4, 5, 6, 7};
+    private final int[] SERIES_THRESHOLD_INDEX = {7, 0, 1, 2, 3, 4, 5, 6, 7};
+
+//    private final int [] NUM_EPISODES_PER_SERIES = {0, 10, 10, 10, 10, 10, 10, 10, 10};
+//    private final boolean [] SERIES_IS_ONLINE = {true, false, false, false, false, false, false, false, false};
+//    private final int[] SERIES_THRESHOLD_INDEX = {0, 0, 1, 2, 3, 4, 5, 6, 7};
 
 //    private final int [] NUM_EPISODES_PER_SERIES = {4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 10, 10, 10, 10, 10, 10, 10, 10};
 //    private final boolean [] SERIES_IS_ONLINE = {true, true, true, true, true, true, true, true, false, false, false, false, false, false, false, false};
-//    private final int[] SERIES_THRESHOLD_INDEX = {0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7};
+//    private final int[] SERIES_THRESHOLD_INDEX = {4, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7};
 
 //    private final int [] NUM_EPISODES_PER_SERIES = {4000, 10, 10, 10, 10, 10, 10, 10, 10,
 //            4, 10, 10, 10, 10, 10, 10, 10, 10,

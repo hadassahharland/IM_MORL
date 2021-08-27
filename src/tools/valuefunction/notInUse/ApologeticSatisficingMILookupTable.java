@@ -5,9 +5,11 @@
 // reward for the second objective) - i.e. minimises impact subject to achieving a satisfactory level of performance on the primary
 // objective
 
-package tools.valuefunction;
+package tools.valuefunction.notInUse;
 
 import agents.Thresholds;
+import tools.valuefunction.SoftmaxMI;
+import tools.valuefunction.TLO_MI;
 import tools.valuefunction.interfaces.ActionSelector;
 import tools.valuefunction.interfaces.LookupTable;
 

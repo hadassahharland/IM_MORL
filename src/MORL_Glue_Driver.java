@@ -29,9 +29,25 @@ public class MORL_Glue_Driver
 				e.printStackTrace();
 			}
 
-			// Create Output Catcher File
+			// Create Console Output Catcher File
 		try {
 			File output = new File("AdditionalConsoleOutput.txt");
+			if (output.createNewFile()) {
+				System.out.println("File created: " + output.getName());
+			} else {
+				System.out.println("File will be overwritten");
+				output.delete();
+				output.createNewFile();
+				System.out.println("File created: " + output.getName());
+			}
+		} catch (IOException e) {
+			System.out.println("An error occurred.");
+			e.printStackTrace();
+		}
+
+		// Create Watcher Output Catcher File
+		try {
+			File output = new File("WatcherOutput.txt");
 			if (output.createNewFile()) {
 				System.out.println("File created: " + output.getName());
 			} else {
@@ -107,7 +123,7 @@ public class MORL_Glue_Driver
 //					LivingRoomWithTableConsiderateMVPRubbishUnderTable.main(null);
 //					LivingRoomWithTableConsiderateMVPRubbishBehindTable.main(null);
 //					LivingRoomWithVase.main(null);
-					LivingRoomWithTableAndCat.main(null);
+					WatchedLivingRoomWithTableAndCat.main(null);
 
 				  }
 		        };

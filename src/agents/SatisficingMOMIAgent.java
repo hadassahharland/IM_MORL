@@ -11,6 +11,7 @@
 package agents;
 
 import org.rlcommunity.rlglue.codec.AgentInterface;
+import org.rlcommunity.rlglue.codec.RLGlue;
 import org.rlcommunity.rlglue.codec.taskspec.TaskSpecVRLGLUE3;
 import org.rlcommunity.rlglue.codec.types.Action;
 import org.rlcommunity.rlglue.codec.types.Observation;
@@ -32,8 +33,11 @@ import java.util.Stack;
 
 public class SatisficingMOMIAgent implements AgentInterface {
 
+    boolean isApologetic = false; // manual set
+    Conscience myConscience;
+
 	// Problem-specific parameters - at some point I need to refactor the code in such a way that these can be set externally
-     int thresholdIndex = 4;  // provide the threshold to initialise at
+     int thresholdIndex = 7;  // provide the threshold to initialise at
 
      double [][] allThresholds = {
              {0, 0, 0},
@@ -126,6 +130,10 @@ public class SatisficingMOMIAgent implements AgentInterface {
         numStates = numEnvtStates * 3; // agent state = environmental-state U accumulated-primary-reward
         numOfObjectives = theTaskSpec.getNumOfObjectives();
         vf = new SatisficingMILookupTable(numOfObjectives, numActions, numStates, 0, primaryRewardThreshold, impactThreshold1, impactThreshold2);
+
+        if (isApologetic) {
+            myConscience = new Conscience();
+        }
 
         refreshThresholds();
         String str = "Thresholds: P = " + primaryRewardThreshold + ", A1 = " + impactThreshold1 + ", A2 = " + impactThreshold2;
@@ -251,6 +259,30 @@ public class SatisficingMOMIAgent implements AgentInterface {
     @Override
     public Action agent_step(Reward reward, Observation observation) 
     {
+        // Assess and Apologise happens after the agent has completed the action and the environment is updated.
+        // This state is confirmed to be the case at the initiation of the new agent step
+        // if this is not the first step, then complete the sequence before determining the next action.
+        if (numOfSteps > 0 & isApologetic){
+            conscienceNextAction();
+//            // Observe Actor
+//            String attitude = RLGlue.RL_env_message("observe_actor");
+//            // assess attitude and determine fault if necessary
+//            int justification = myConscience.assess(
+//                    new double[]{accumulatedPrimaryReward, accumulatedImpact1, accumulatedImpact2},
+//                    Integer.parseInt(attitude));
+//            if (justification >= 0) {
+//                // if fault is determined, send apology
+//                RLGlue.RL_env_message("apologise:" + justification);
+//                // then Observe actor again
+//                attitude = RLGlue.RL_env_message("observe_actor");
+//                if (Integer.parseInt(attitude) >= 0) {
+//                    // If actor is no longer upset, then update the thresholds as according to the justification
+//                    adjustThresholds(justification);
+//                }
+//            }
+        }
+
+
         numOfSteps++;
         accumulatedPrimaryReward += reward.getDouble(0); // get the primary reward
         vf.setAccumulatedReward(accumulatedPrimaryReward);
@@ -430,7 +462,41 @@ public class SatisficingMOMIAgent implements AgentInterface {
         vf.setThresholds(thresholds);
     }
 
-    private void adjustThresholds(double[] thresholds) {
+    private void conscienceNextAction(){
+        // Observe Actor
+        String attitude = RLGlue.RL_env_message("observe_actor");
+        // assess attitude and determine fault if necessary
+        int justification = myConscience.assess(
+                new double[]{accumulatedPrimaryReward, accumulatedImpact1, accumulatedImpact2},
+                Integer.parseInt(attitude));
+        if (justification >= 0) {
+            // if fault is determined, send apology
+            RLGlue.RL_env_message("apologise:" + justification);
+            // then Observe actor again
+            attitude = RLGlue.RL_env_message("observe_actor");
+            if (Integer.parseInt(attitude) >= 0) {
+                // If actor is no longer upset, then update the thresholds as according to the justification
+                adjustThresholds(justification);
+            }
+        }
+    }
+
+    private void adjustThresholds(int thresholdAdjustIndex) {
+        // list current threshold values
+        double [] thresholds = {primaryRewardThreshold, impactThreshold1, impactThreshold2};
+
+        for (int i=0; i<thresholds.length; i++) {
+            if (i == thresholdAdjustIndex) {
+                thresholds[i] += 2*delta[i];
+                // Only need to check maximum if the threshold is increased
+                if (thresholds[i] > thresholdMaximum[i]) { thresholds[i] = thresholdMaximum[i]; }
+            } else {
+                thresholds[i] += -1*delta[i];
+                // Only need to check minimum if the threshold is decreased
+                if (thresholds[i] < thresholdMinimum[i]) { thresholds[i] = thresholdMinimum[i]; }
+            }
+        }
+
         primaryRewardThreshold = thresholds[0]; // sets threshold on the acceptable minimum level of performance on the primary reward // use high value here to get lex-pa
         impactThreshold1 = thresholds[1]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
         impactThreshold2 = thresholds[2]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
@@ -470,6 +536,7 @@ public class SatisficingMOMIAgent implements AgentInterface {
             System.out.println("Learning has been resumed");
             return "message understood, policy unfrozen";
         }
+
         if (message.startsWith("update_threshold:")) {
             String[] parts = message.split(":");
             thresholdIndex = Integer.valueOf(parts[1]).intValue();
@@ -480,22 +547,23 @@ public class SatisficingMOMIAgent implements AgentInterface {
         if (message.startsWith("adjust_threshold:")) {
             String[] parts = message.split(":");
             int thresholdAdjustIndex = Integer.valueOf(parts[1]).intValue();
+            adjustThresholds(thresholdAdjustIndex);
 
-            // list current threshold values
-            double [] thresholds = {primaryRewardThreshold, impactThreshold1, impactThreshold2};
-
-            for (int i=0; i<thresholds.length; i++) {
-                if (i == thresholdAdjustIndex) {
-                    thresholds[i] += 2*delta[i];
-                    // Only need to check maximum if the threshold is increased
-                    if (thresholds[i] > thresholdMaximum[i]) { thresholds[i] = thresholdMaximum[i]; }
-                } else {
-                    thresholds[i] += -1*delta[i];
-                    // Only need to check minimum if the threshold is decreased
-                    if (thresholds[i] < thresholdMinimum[i]) { thresholds[i] = thresholdMinimum[i]; }
-                }
-            }
-            adjustThresholds(thresholds);
+//            // list current threshold values
+//            double [] thresholds = {primaryRewardThreshold, impactThreshold1, impactThreshold2};
+//
+//            for (int i=0; i<thresholds.length; i++) {
+//                if (i == thresholdAdjustIndex) {
+//                    thresholds[i] += 2*delta[i];
+//                    // Only need to check maximum if the threshold is increased
+//                    if (thresholds[i] > thresholdMaximum[i]) { thresholds[i] = thresholdMaximum[i]; }
+//                } else {
+//                    thresholds[i] += -1*delta[i];
+//                    // Only need to check minimum if the threshold is decreased
+//                    if (thresholds[i] < thresholdMinimum[i]) { thresholds[i] = thresholdMinimum[i]; }
+//                }
+//            }
+//            adjustThresholds(thresholds);
 
 //            System.out.println("Threshold Index: " + thresholdIndex);
 //            refreshThresholds();

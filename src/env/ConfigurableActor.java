@@ -1,39 +1,73 @@
 package env;
 
+import agents.Thresholds;
+import org.rlcommunity.rlglue.codec.RLGlue;
 import org.rlcommunity.rlglue.codec.types.Reward;
+
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Random;
 
 public class ConfigurableActor implements ActorInterface{
 
     // The actor's attitude can be one of three: -1 is upset, 0 is neutral and 1 is happy.
-    public static int attitude;
+    public int attitude;
     // The actor's justification can be -1 for neutral state, else corresponds with the offending objective number
-    public static int justification;
-    public static String agentType; // the actor's type, set at init
+    public int justification;
+    public String agentType; // the actor's type, set at init
     private Random random;
+
+    private final double emotiveFactor = 1; //0.8; // likelihood of NOT being assigned another random attitude
+    private final double FERFactor = 1; //0.8; // likelihood of correctly recognising the actor's attitude
+
+    private int episode;
+    private int step;
+
+    private int [] ON = {50, 50, 50, 50};
     private final int OFF = -10000;
 
     // Actor Settable variables
-    public static int[] thresholds;   // Thresholds reward minimums for actor reactions
-    private double persistence; // chance of being upset about a previous action in the subsequent action sequence (decay factor)
+//    public static int[] thresholds;   // Thresholds reward minimums for actor reactions
+//    private double persistence; // chance of being upset about a previous action in the subsequent action sequence (decay factor)
+
+    public int[] thresholds;
+    private double persistence;
 
     public ConfigurableActor(String type){
         attitude = 0;  // neutral attitude
         justification = -1; // neutral justification
         agentType = type;
+        episode = 0;
+        random = new Random(578);
+        System.out.println("Initiating Actor: " + type);
+        persistence = 1;
 
         if (agentType.equals("IndifferentIra")){
-            int[] thresh = new int[]{OFF, OFF, OFF, OFF};
-            int persist = 0;
-        } else if (type == "") {
-            // TODO: other types
+            // doesn't care about anything
+            thresholds = new int[]{OFF, OFF, OFF, OFF};
+        } else if (type.equals("TidyToni")) {
+            // prefers the table put back
+            thresholds = new int[]{OFF, ON[1], OFF, OFF};
+        } else if (type.equals("QuietQuinn")) {
+            // prefers the cat left alone
+            thresholds = new int[]{OFF, OFF, ON[2], OFF};
+        } else if (type.equals("SensitiveSami")) {
+            // prefers everything
+            thresholds = new int[]{ON[0], ON[1], ON[2], OFF};
         } else {
             System.out.println("type not found, using default settings");
-            int[] thresh = new int[]{OFF, OFF, OFF, OFF};
-            int persist = 0;
+            thresholds = new int[]{OFF, OFF, OFF, OFF};
         }
-        // TODO: Set thresh and persist variables
 
+        printFourToFile("Episode", "Step", "Attitude", "Justification");  // add headings to file
+
+
+    }
+
+    public void cleanUp() {
+        attitude = 0;  // neutral attitude
+        justification = -1; // neutral justification
+        episode = 0;
     }
 
 
@@ -74,6 +108,8 @@ public class ConfigurableActor implements ActorInterface{
             // Then the actor should react
             react(just);
         }
+        printFourToFile(Integer.toString(episode), Integer.toString(step), Integer.toString(attitude), Integer.toString(justification));
+        step += 1; //next step
     }
 
 
@@ -82,17 +118,17 @@ public class ConfigurableActor implements ActorInterface{
 
     private void react(int just) {
         // if the actor has become upset at this action, then react
+        justification = just;
         if (just > 0) {
-            justification = just;
             attitude = -1;
         } else { // else the actor has not become upset, justification and attitude should be reset
-            justification = -1;  // reset justification to neutral
+//            justification = -1;  // reset justification to neutral
             attitude = setNeutral(); // set the actor's attitude to neutral, with some random factor included
         }
     }
 
     private int setNeutral(){
-        if (random.nextDouble() > 0.8){  // 20% chance of -1, 0, 1
+        if (random.nextDouble() > emotiveFactor){  // 20% chance of -1, 0, 1
             return (random.nextInt(3)-1); // random int 0, 1 or 2, -1 to transform to -1, 0, 1
         } else return 0;
     }
@@ -101,7 +137,7 @@ public class ConfigurableActor implements ActorInterface{
         // This scrambler sits in place of using a image recognition software, and implements a chance of incorrect
         // identification at Attitude for the Agent at a similar (intended to be representative) proportion
         int scrambledAttitude = attitude;
-        if (random.nextDouble() > 0.8){
+        if (random.nextDouble() > FERFactor){
             scrambledAttitude = random.nextInt(3)-1; // random int 0, 1 or 2, -1 to transform to -1, 0, 1
         }
         return scrambledAttitude;
@@ -116,6 +152,23 @@ public class ConfigurableActor implements ActorInterface{
 
     public String actor_message(String var1){
         return "The actor's current attitude is " + attitude + " and the justification is " + justification;
+    }
+
+    public void printFourToFile(String ep, String step, String attitude, String justification) {
+        try {
+            FileWriter myWriter = new FileWriter("WatcherOutput.txt", true);
+            myWriter.write(ep + ", " + step + ", "  + attitude + ", " + justification + System.lineSeparator());
+            myWriter.close();
+//            System.out.println("Successfully wrote to the file.");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    public void nextEpisode() {
+        this.episode += 1;
+        this.step = 0;
     }
 }
 
