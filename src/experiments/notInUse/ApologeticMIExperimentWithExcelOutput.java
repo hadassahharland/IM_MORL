@@ -1,7 +1,7 @@
 // Modified from TLOExplorationExperiment in Dec 2018 to support initial experiments
 // with AI safety side-effective sensitive agents
 
-package experiments;
+package experiments.notInUse;
 
 import org.rlcommunity.rlglue.codec.RLGlue;
 import org.rlcommunity.rlglue.codec.taskspec.TaskSpecVRLGLUE3;

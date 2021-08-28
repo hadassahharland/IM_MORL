@@ -1,9 +1,6 @@
-import experiments.ApologeticMIExperimentWithExcelOutput;
 import experiments.FlexibleMIExperimentWithExcelOutput;
-import experiments.MIExperimentWithExcelOutput;
-import experiments.MVPExperimentWithExcelOutput;
+
 import java.io.File;  // Import the File class
-import java.io.FileWriter;   // Import the FileWriter class
 import java.io.IOException;  // Import the IOException class to handle errors
 
 
@@ -13,6 +10,23 @@ import env.*;
 
 public class MORL_Glue_Driver
 {
+	public static void createFile(String name) {
+		try {
+			File output = new File(name);
+			if (output.createNewFile()) {
+				System.out.println("File created: " + output.getName());
+			} else {
+				System.out.println("File will be overwritten");
+				output.delete();
+				output.createNewFile();
+				System.out.println("File created: " + output.getName());
+			}
+		} catch (IOException e) {
+			System.out.println("An error occurred.");
+			e.printStackTrace();
+		}
+	}
+
 
 	public static void main(String[] args) 
 	{
@@ -29,37 +43,55 @@ public class MORL_Glue_Driver
 				e.printStackTrace();
 			}
 
+			createFile("AdditionalConsoleOutput.txt");
+			createFile("WatcherOutput.txt");
+			createFile("ConscienceOutput.txt");
 			// Create Console Output Catcher File
-		try {
-			File output = new File("AdditionalConsoleOutput.txt");
-			if (output.createNewFile()) {
-				System.out.println("File created: " + output.getName());
-			} else {
-				System.out.println("File will be overwritten");
-				output.delete();
-				output.createNewFile();
-				System.out.println("File created: " + output.getName());
-			}
-		} catch (IOException e) {
-			System.out.println("An error occurred.");
-			e.printStackTrace();
-		}
-
-		// Create Watcher Output Catcher File
-		try {
-			File output = new File("WatcherOutput.txt");
-			if (output.createNewFile()) {
-				System.out.println("File created: " + output.getName());
-			} else {
-				System.out.println("File will be overwritten");
-				output.delete();
-				output.createNewFile();
-				System.out.println("File created: " + output.getName());
-			}
-		} catch (IOException e) {
-			System.out.println("An error occurred.");
-			e.printStackTrace();
-		}
+//		try {
+//			File output = new File("AdditionalConsoleOutput.txt");
+//			if (output.createNewFile()) {
+//				System.out.println("File created: " + output.getName());
+//			} else {
+//				System.out.println("File will be overwritten");
+//				output.delete();
+//				output.createNewFile();
+//				System.out.println("File created: " + output.getName());
+//			}
+//		} catch (IOException e) {
+//			System.out.println("An error occurred.");
+//			e.printStackTrace();
+//		}
+//
+//		// Create Watcher Output Catcher File
+//		try {
+//			File output = new File("WatcherOutput.txt");
+//			if (output.createNewFile()) {
+//				System.out.println("File created: " + output.getName());
+//			} else {
+//				System.out.println("File will be overwritten");
+//				output.delete();
+//				output.createNewFile();
+//				System.out.println("File created: " + output.getName());
+//			}
+//		} catch (IOException e) {
+//			System.out.println("An error occurred.");
+//			e.printStackTrace();
+//		}
+//
+//		try {
+//			File output = new File("ConscienceOutput.txt");
+//			if (output.createNewFile()) {
+//				System.out.println("File created: " + output.getName());
+//			} else {
+//				System.out.println("File will be overwritten");
+//				output.delete();
+//				output.createNewFile();
+//				System.out.println("File created: " + output.getName());
+//			}
+//		} catch (IOException e) {
+//			System.out.println("An error occurred.");
+//			e.printStackTrace();
+//		}
 
 //		String agentString;
 //		String environmentString;
@@ -150,5 +182,5 @@ public class MORL_Glue_Driver
 		        };
 		    experiment.start();
 		}
-	
 }
+

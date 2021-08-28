@@ -33,7 +33,7 @@ import java.util.Stack;
 
 public class SatisficingMOMIAgent implements AgentInterface {
 
-    boolean isApologetic = false; // manual set
+    boolean isApologetic = true; // manual set
     Conscience myConscience;
 
 	// Problem-specific parameters - at some point I need to refactor the code in such a way that these can be set externally
@@ -179,6 +179,10 @@ public class SatisficingMOMIAgent implements AgentInterface {
         vf.setAccumulatedImpact1(accumulatedImpact1);
         vf.setAccumulatedImpact2(accumulatedImpact2);
         tracingStack.clear();
+
+        if (isApologetic) {
+            myConscience.nextEpisode();
+        }
         
         //DEBUGGING STUFF
         for (int s=0; s<numStates; s++)
@@ -463,22 +467,33 @@ public class SatisficingMOMIAgent implements AgentInterface {
     }
 
     private void conscienceNextAction(){
-        // Observe Actor
-        String attitude = RLGlue.RL_env_message("observe_actor");
-        // assess attitude and determine fault if necessary
+//        // Observe Actor
+        int attitude = env.Attitude.getAttitude();
+//        String attitude = "-1"; //RLGlue.RL_env_message("observe_actor");
+//        String followUp = "na";
+//        // assess attitude and determine fault if necessary
         int justification = myConscience.assess(
                 new double[]{accumulatedPrimaryReward, accumulatedImpact1, accumulatedImpact2},
-                Integer.parseInt(attitude));
+                attitude);
+        // get confirmation
+//        int actorJustification = env.Attitude.getJustification();
         if (justification >= 0) {
-            // if fault is determined, send apology
-            RLGlue.RL_env_message("apologise:" + justification);
-            // then Observe actor again
-            attitude = RLGlue.RL_env_message("observe_actor");
-            if (Integer.parseInt(attitude) >= 0) {
-                // If actor is no longer upset, then update the thresholds as according to the justification
+            // if fault is determined, apologise
+            printToFile("Agent Apologises for objective: " + justification);
+////            RLGlue.RL_env_message("apologise:" + justification);
+//            // then Observe actor again
+//            followUp = "1";//RLGlue.RL_env_message("observe_actor");
+//            if (Integer.parseInt(followUp) >= 0) {
+//                // If actor is no longer upset, then update the thresholds as according to the justification
+            //without confirmation, just do this anyway.
                 adjustThresholds(justification);
-            }
+//            }
+//            else {
+//                // if the apology failed, set inhibition to apologise for this objective again
+//                myConscience.setNotThis(justification);
+//            }
         }
+        myConscience.printThis(Integer.toString(attitude), Integer.toString(justification));
     }
 
     private void adjustThresholds(int thresholdAdjustIndex) {
@@ -540,9 +555,15 @@ public class SatisficingMOMIAgent implements AgentInterface {
         if (message.startsWith("update_threshold:")) {
             String[] parts = message.split(":");
             thresholdIndex = Integer.valueOf(parts[1]).intValue();
-            System.out.println("Threshold Index: " + thresholdIndex);
-            refreshThresholds();
-            return "message understood, threshold updated";
+            if (thresholdIndex >= 0) {
+                System.out.println("Threshold Index: " + thresholdIndex);
+                refreshThresholds();
+                return "message understood, threshold updated";
+            }
+            else {
+                System.out.println("Thresholds retained");
+                return "message understood, threshold retained";
+            }
         }
         if (message.startsWith("adjust_threshold:")) {
             String[] parts = message.split(":");

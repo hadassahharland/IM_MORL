@@ -132,6 +132,7 @@ public class WatchedLivingRoomWithTableAndCat implements EnvironmentInterface
 
     // for watched scenario
     public ConfigurableActor watcher;
+    private boolean[] watchedStates;
 
     // Implemented for use in debugging the TLO-PA agent. Lets me generate the state index for a given state so I can
     // look it up in the agent's Q-table
@@ -155,6 +156,7 @@ public class WatchedLivingRoomWithTableAndCat implements EnvironmentInterface
 //        reporting = "Episode: ";
         episodeNum = 0;
         trialNum = 0;
+        watchedStates = new boolean[] {false, false};
 
         System.out.println("TV and Couch Obstacles in place: " + ((TV + COUCH) < 0));
         System.out.println("Penalties: " + DISPLACEMENT_PENALTY + ", " + CAT_PENALTY);
@@ -215,7 +217,8 @@ public class WatchedLivingRoomWithTableAndCat implements EnvironmentInterface
     {
         updatePosition(action.getInt(0));
         // Watcher react
-        watcher.reaction(rewards);
+        updateWatchedStates();
+        watcher.reaction(watchedStates);
 
         // set up new Observation
         Reward_observation_terminal RewardObs = new Reward_observation_terminal();
@@ -240,19 +243,24 @@ public class WatchedLivingRoomWithTableAndCat implements EnvironmentInterface
 //        rubbishRemaining = COUNT_RUBBISH_SPAWN;   // at initialisation, rubbish in room equals total pieces of rubbish
     }
 
+    public void updateWatchedStates(){
+        this.watchedStates[0] = (tableLocation == TABLE_START);
+        this.watchedStates[1] = (catTailRunOver == 0);
+    }
+
     public String env_message(String message)
     {
-        if (message.equals("observe_actor")) {
-            return String.valueOf(watcher.be_observed());
-        }
-        else if (message.startsWith("apologise:")) {
-            String[] parts = message.split(":");
-            int apologyIndex = Integer.valueOf(parts[1]).intValue();
-            watcher.assess_apology(apologyIndex);
-            System.out.println("Apology Received");
-            return "apology received";
-        }
-        else if (message.equals("start-debugging"))
+//        if (message.equals("observe_actor")) {
+//            return String.valueOf(watcher.be_observed());
+//        }
+//        else if (message.startsWith("apologise:")) {
+//            String[] parts = message.split(":");
+//            int apologyIndex = Integer.valueOf(parts[1]).intValue();
+//            watcher.assess_apology(apologyIndex);
+//            System.out.println("Apology Received");
+//            return "apology received";
+//        }
+        if (message.equals("start-debugging"))
         {
             debugging = true;
             System.out.println("***** Debugging!!!!!!!");

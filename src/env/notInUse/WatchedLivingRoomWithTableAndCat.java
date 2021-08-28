@@ -348,7 +348,7 @@ public class WatchedLivingRoomWithTableAndCat implements EnvironmentInterface
             rewards.setDouble(TIDY_REWARD, 50); // reward for reaching goal
             rewards.setDouble(PERFORMANCE_REWARD, 50+TABLE_PENALTY[tableLocation] + CAT_PENALTY*catTail);
         }
-        actor.reaction(rewards);
+//        actor.reaction(rewards);
 //        if (terminal)
 //        {
 //            rewards.setDouble(TIDY_REWARD, 50); // reward for reaching goal

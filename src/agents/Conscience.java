@@ -4,25 +4,51 @@ import env.ConfigurableActor;
 import org.rlcommunity.rlglue.codec.RLGlue;
 import org.rlcommunity.rlglue.codec.types.Reward;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class Conscience {
     // Stores and calculates the response to potential harm, produces the response
 
-    public int justification;
+//    public int justification;
+    private int episode;
+    private int step;
+    public int notThis;
+    public int resetDelay;
 
     public Conscience() {
+        episode = -1;
+        printFiveToFile("Episode", "Step", "env.Attitude", "Justification");  // add headings to file
+    }
+
+    public void cleanUp() {
+        episode = -1;
+    }
+
+    public void nextEpisode() {
+        this.episode += 1;
+        this.step = 0;
     }
 
     // Create wrapper method that contains steps for each action
     public int assess(double[] accumulatedRewards, int attitude) {
         // At the end of each action, the agent must step through a process defined by the following methods
+        // if the actor is upset, determine fault
         if (attitude < 0) {
             // if the actor's attitude is upset, determine fault
-            int justification = determineFault(accumulatedRewards);
+            return determineFault(accumulatedRewards);
         }
-        return justification;
+        // if the actor is not upset, then no justification is required.
+        else {
+            return -1;
+        }
     }
 
-
+    public void setNotThis(int notThis) {
+        // if the apology fails, then avoid apologising for this item again next time.
+        this.notThis = notThis;
+        this.resetDelay = 2; //number of apology sequences before this is unlocked, unless overwritten
+    }
 //    if (justification > 0) {
 //        // if the apology is required, send it to the Actor
 //        actor.assess_apology(justification);
@@ -47,7 +73,7 @@ public class Conscience {
 
         // Iterate over each objective
         for (int i = 0; i < accumulatedRewards.length; i++) {
-            if (accumulatedRewards[i] < min){;
+            if (!(i == notThis) & (accumulatedRewards[i] < min)){;  // don't assess the "not this" objective
             // If the value is less than the running minimum (selects latest objectives with priority in a tie)
             // Then save the index of that value
                 imin = i;
@@ -58,7 +84,27 @@ public class Conscience {
         if (accumulatedRewards[imin] < 0) {
             just = imin;
         }
+        this.resetDelay -= 1; // count down the reset counter
+        if (resetDelay <= 0) { this.notThis = -1; } // if it hits zero, reset "not this"
         return just;
+    }
+
+    public void printThis(String attitude, String justification) {
+        // pass variables into the Conscience locality, pickup episode and step
+        printFiveToFile(Integer.toString(episode), Integer.toString(step), attitude, justification);
+        step += 1; //next step
+    }
+
+    public void printFiveToFile(String ep, String step, String attitude, String justification) {
+        try {
+            FileWriter myWriter = new FileWriter("ConscienceOutput.txt", true);
+            myWriter.write(ep + ", " + step + ", "  + attitude + ", " + justification + System.lineSeparator());
+            myWriter.close();
+//            System.out.println("Successfully wrote to the file.");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 
 //    public void adjustThresholds(int justification) {

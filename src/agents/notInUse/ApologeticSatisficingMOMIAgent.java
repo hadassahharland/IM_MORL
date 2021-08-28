@@ -8,8 +8,10 @@
 // However it means that the state-space needs to be augmented with the primary reward received so far, which will
 // probably result in slower learning.
 
-package agents;
+package agents.notInUse;
 
+import agents.Conscience;
+import agents.Thresholds;
 import env.ConfigurableActor;
 import org.rlcommunity.rlglue.codec.AgentInterface;
 import org.rlcommunity.rlglue.codec.taskspec.TaskSpecVRLGLUE3;
@@ -211,8 +213,8 @@ public class ApologeticSatisficingMOMIAgent implements AgentInterface {
     public Action agent_step(Reward reward, Observation observation) 
     {
         // Before undertaking next step, assess
-        double[] accumulatedRewards = {accumulatedPrimaryReward, accumulatedImpact1, accumulatedImpact2, 0};
-        conscience.onNextAction(accumulatedRewards, actor);
+//        double[] accumulatedRewards = {accumulatedPrimaryReward, accumulatedImpact1, accumulatedImpact2, 0};
+//        conscience.assess(accumulatedRewards, actor);
 
         numOfSteps++;
         accumulatedPrimaryReward += reward.getDouble(0); // get the primary reward
