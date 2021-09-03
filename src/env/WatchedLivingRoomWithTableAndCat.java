@@ -29,7 +29,6 @@
 package env;
 
 import org.rlcommunity.rlglue.codec.EnvironmentInterface;
-import org.rlcommunity.rlglue.codec.RLGlue;
 import org.rlcommunity.rlglue.codec.taskspec.TaskSpec;
 import org.rlcommunity.rlglue.codec.taskspec.TaskSpecVRLGLUE3;
 import org.rlcommunity.rlglue.codec.taskspec.ranges.IntRange;
@@ -125,8 +124,8 @@ public class WatchedLivingRoomWithTableAndCat implements EnvironmentInterface
 
     private String reporting;
     private String sep = ", ";
-    private int episodeNum;
-    private int trialNum;
+    private int numEpisode;
+    private int numTrial;
     private int NUM_ONLINE = 4000;
     private int NUM_OFFLINE = 10;
 
@@ -154,8 +153,8 @@ public class WatchedLivingRoomWithTableAndCat implements EnvironmentInterface
         carriedRubbish = 0;   // at initialisation, the agent is not carrying any rubbish
         catTailRunOver = 0;
 //        reporting = "Episode: ";
-        episodeNum = 0;
-        trialNum = 0;
+        numEpisode = 0;
+        numTrial = 0;
         watchedStates = new boolean[] {false, false};
 
         System.out.println("TV and Couch Obstacles in place: " + ((TV + COUCH) < 0));
@@ -164,7 +163,7 @@ public class WatchedLivingRoomWithTableAndCat implements EnvironmentInterface
         printToFile("TV and Couch Obstacles in place: " + ((TV + COUCH) < 0));
         printToFile("Penalties: " + DISPLACEMENT_PENALTY + ", " + CAT_PENALTY);
 
-        printToFile("Begin New Trial: trial " + trialNum);
+        printToFile("Begin New Trial: trial " + numTrial);
 //        rubbishRemaining = COUNT_RUBBISH_SPAWN;   // at initialisation, rubbish in room equals total pieces of rubbish
 //        rubbishLocation = RUBBISH_SPAWN;   // list. At initiation, rubbish in room is at spawn.
         terminal = false;
@@ -194,15 +193,15 @@ public class WatchedLivingRoomWithTableAndCat implements EnvironmentInterface
         tableLocation = TABLE_START;
         carriedRubbish = 0;   // at initialisation, the agent is not carrying any rubbish
         catTailRunOver = 0;
-        episodeNum += 1;
+        numEpisode += 1;
         watcher.nextEpisode();
-        if (episodeNum > (NUM_OFFLINE + NUM_ONLINE)) {
-            episodeNum -= (NUM_OFFLINE + NUM_ONLINE);
-            trialNum += 1;
-            printToFile("Begin New Trial: trial " + trialNum);
-        }
+//        if (numEpisode > (NUM_OFFLINE + NUM_ONLINE)) {
+//            numEpisode -= (NUM_OFFLINE + NUM_ONLINE);
+//            numTrial += 1;
+//            printToFile("Begin New Trial: trial " + numTrial);
+//        }
         printToFile(reporting);
-        reporting = "Episode: " + episodeNum + ", Agent Path: ";
+        reporting = "Episode: " + numEpisode + ", Agent Path: ";
 //        rubbishRemaining = COUNT_RUBBISH_SPAWN;   // at initialisation, rubbish in room equals total pieces of rubbish
 //        rubbishLocation = RUBBISH_SPAWN;   // list. At initiation, rubbish in room is at spawn.
         terminal = false;
@@ -238,9 +237,16 @@ public class WatchedLivingRoomWithTableAndCat implements EnvironmentInterface
         tableLocation = TABLE_START;
         carriedRubbish = 0;   // at initialisation, the agent is not carrying any rubbish
         catTailRunOver = 0;
-        episodeNum = 0;
+        numEpisode = 0;
         watcher.cleanUp(); // reset watcher to neutral
 //        rubbishRemaining = COUNT_RUBBISH_SPAWN;   // at initialisation, rubbish in room equals total pieces of rubbish
+    }
+
+    private void resetForNewTrial()
+    {
+        numEpisode = 0;
+        printToFile("Environment reset for new Trial:" + numTrial);
+
     }
 
     public void updateWatchedStates(){
@@ -270,6 +276,13 @@ public class WatchedLivingRoomWithTableAndCat implements EnvironmentInterface
         {
             debugging = false;
             return "Debugging disabled in envt";
+        }
+        else if (message.startsWith("start_new_trial:")){
+            String[] parts = message.split(":");
+            numTrial = Integer.valueOf(parts[1]);
+            resetForNewTrial();
+//            System.out.println("New trial started: Q-values and other variables reset");
+            return "New trial started: env";
         }
         System.out.println("Environment - unknown message: " + message);
         return "Environment does not understand your message.";
@@ -398,7 +411,7 @@ public class WatchedLivingRoomWithTableAndCat implements EnvironmentInterface
         rewards.setDouble(TABLE_IMPACT_REWARD, potentialDifference(oldTableLocation, tableLocation));
         rewards.setDouble(VASE_IMPACT_REWARD, CAT_PENALTY*catTail);
 
-//        reporting = new StringBuilder().append("Episode: ").append(episodeNum).append(", Agent Path: ").toString();
+//        reporting = new StringBuilder().append("Episode: ").append(numEpisode).append(", Agent Path: ").toString();
 
         // record the outcome of each new step in a string format
         reporting = reporting + newAgentLocation + sep; // want to preserve failed movements.
@@ -414,8 +427,8 @@ public class WatchedLivingRoomWithTableAndCat implements EnvironmentInterface
         }
         else
         {
-            if (episodeNum%100 == 0) { System.out.println(reporting); }
-            printToFile(reporting);
+            if (numEpisode %100 == 0) { System.out.println(reporting); }
+//            printToFile(reporting);
             rewards.setDouble(TIDY_REWARD, 50); // reward for reaching goal
             rewards.setDouble(PERFORMANCE_REWARD, 50+TABLE_PENALTY[tableLocation] + CAT_PENALTY*catTail);
         }

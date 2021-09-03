@@ -1,9 +1,5 @@
 package agents;
 
-import env.ConfigurableActor;
-import org.rlcommunity.rlglue.codec.RLGlue;
-import org.rlcommunity.rlglue.codec.types.Reward;
-
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -15,10 +11,12 @@ public class Conscience {
     private int step;
     public int notThis;
     public int resetDelay;
+    private boolean apologised;
 
     public Conscience() {
         episode = -1;
-        printFiveToFile("Episode", "Step", "env.Attitude", "Justification");  // add headings to file
+        apologised = false;
+        printToConscienceOutputFile("Episode", "Step", "env.Attitude", "Justification");  // add headings to file
     }
 
     public void cleanUp() {
@@ -28,12 +26,17 @@ public class Conscience {
     public void nextEpisode() {
         this.episode += 1;
         this.step = 0;
+        this.apologised = false;
     }
 
     // Create wrapper method that contains steps for each action
     public int assess(double[] accumulatedRewards, int attitude) {
         // At the end of each action, the agent must step through a process defined by the following methods
         // if the actor is upset, determine fault
+        printToConscienceOutputFile("Accumulated Rewards:",
+                Double.toString(accumulatedRewards[0]),
+                Double.toString(accumulatedRewards[1]),
+                Double.toString(accumulatedRewards[2]));
         if (attitude < 0) {
             // if the actor's attitude is upset, determine fault
             return determineFault(accumulatedRewards);
@@ -42,6 +45,14 @@ public class Conscience {
         else {
             return -1;
         }
+    }
+
+    public void setApologisedFlagTrue() {
+        this.apologised = true;
+    }
+
+    public boolean isApologised() {
+        return apologised;
     }
 
     public void setNotThis(int notThis) {
@@ -91,11 +102,11 @@ public class Conscience {
 
     public void printThis(String attitude, String justification) {
         // pass variables into the Conscience locality, pickup episode and step
-        printFiveToFile(Integer.toString(episode), Integer.toString(step), attitude, justification);
+        printToConscienceOutputFile(Integer.toString(episode), Integer.toString(step), attitude, justification);
         step += 1; //next step
     }
 
-    public void printFiveToFile(String ep, String step, String attitude, String justification) {
+    public void printToConscienceOutputFile(String ep, String step, String attitude, String justification) {
         try {
             FileWriter myWriter = new FileWriter("ConscienceOutput.txt", true);
             myWriter.write(ep + ", " + step + ", "  + attitude + ", " + justification + System.lineSeparator());

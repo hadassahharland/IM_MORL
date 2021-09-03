@@ -33,27 +33,29 @@ import java.util.Stack;
 
 public class SatisficingMOMIAgent implements AgentInterface {
 
-    boolean isApologetic = true; // manual set
+    boolean isApologetic = false; // manual set
     Conscience myConscience;
 
 	// Problem-specific parameters - at some point I need to refactor the code in such a way that these can be set externally
-     int thresholdIndex = 7;  // provide the threshold to initialise at
+     int thresholdIndex = 1;  // provide the threshold to initialise at
+
+    // Threshold adjustment details
+    int [] delta = {200, 10, 10}; // The learning rate of the apology framework
+    int [] thresholdMinimum = {-1000, -50, -50}; // The minimum value that each threshold can take
+    int [] thresholdMaximum = {45, 0, 0}; // The maximum value that each threshold can take
 
      double [][] allThresholds = {
-             {0, 0, 0},
-             {0, 0, -50},
-             {0, -50, 0},
-             {0, -50, -50},
-             {-50, 0, 0},
-             {-50, 0, -50},
-             {-50, -50, 0},
-             {-50, -50, -50}
+             {thresholdMaximum[0], thresholdMaximum[1], thresholdMaximum[0]}, //{0, 0, 0},
+             {thresholdMaximum[0], thresholdMaximum[1], thresholdMinimum[0]}, //{0, 0, -50},
+             {thresholdMaximum[0], thresholdMinimum[1], thresholdMaximum[0]}, //{0, -50, 0},
+             {thresholdMaximum[0], thresholdMinimum[1], thresholdMinimum[0]}, //{0, -50, -50},
+             {thresholdMinimum[0], thresholdMaximum[1], thresholdMaximum[0]}, //{-50, 0, 0},
+             {thresholdMinimum[0], thresholdMaximum[1], thresholdMinimum[0]}, //{-50, 0, -50},
+             {thresholdMinimum[0], thresholdMinimum[1], thresholdMaximum[0]}, //{-50, -50, 0},
+             {thresholdMinimum[0], thresholdMinimum[1], thresholdMinimum[0]}, //{-50, -50, -50}
      };
 
-     // Threshold adjustment details
-    int [] delta = {10, 10, 10}; // The learning rate of the apology framework
-    int [] thresholdMinimum = {-1000, -50, -50}; // The minimum value that each threshold can take
-    int [] thresholdMaximum = {50, 50, 50}; // The maximum value that each threshold can take
+
 
 
 
@@ -106,6 +108,7 @@ public class SatisficingMOMIAgent implements AgentInterface {
 
     int numOfSteps;
     int numEpisodes;
+    int numTrial;
 //    int numTrial;
     boolean vfSaved = false;
     double accumulatedPrimaryReward; // needs to be stored, and then discretised and used to augment the environmental state
@@ -140,7 +143,7 @@ public class SatisficingMOMIAgent implements AgentInterface {
         System.out.println(str);
         printToFile(str);
 
-        random = new Random(471);
+        random = new Random(); // 471 seed removed
         tracingStack = new Stack<>();
 
         //set the model of converting MDP observation to an int state representation
@@ -477,8 +480,8 @@ public class SatisficingMOMIAgent implements AgentInterface {
                 attitude);
         // get confirmation
 //        int actorJustification = env.Attitude.getJustification();
-        if (justification >= 0) {
-            // if fault is determined, apologise
+        if (justification >= 0 & !myConscience.isApologised()) {
+            // if fault is determined and the agent has not yet apologised this episode, apologise
             printToFile("Agent Apologises for objective: " + justification);
 ////            RLGlue.RL_env_message("apologise:" + justification);
 //            // then Observe actor again
@@ -486,7 +489,9 @@ public class SatisficingMOMIAgent implements AgentInterface {
 //            if (Integer.parseInt(followUp) >= 0) {
 //                // If actor is no longer upset, then update the thresholds as according to the justification
             //without confirmation, just do this anyway.
-                adjustThresholds(justification);
+            adjustThresholds(justification);
+            // And set flag so that apology does not reoccur this episode
+            myConscience.setApologisedFlagTrue();
 //            }
 //            else {
 //                // if the apology failed, set inhibition to apologise for this objective again
@@ -516,6 +521,9 @@ public class SatisficingMOMIAgent implements AgentInterface {
         impactThreshold1 = thresholds[1]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
         impactThreshold2 = thresholds[2]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
         vf.setThresholds(thresholds);
+        printToFile("Thresholds now set to; P = " + thresholds[0]
+                + ", A1 = " + thresholds[1]
+                + ", A2 = " + thresholds[2]);
     }
 
     @Override
@@ -529,21 +537,27 @@ public class SatisficingMOMIAgent implements AgentInterface {
             System.out.println("Learning is paused");
             return "message understood, policy frozen";
         }
-        if (message.equals("save_vf")) {
+        if (message.startsWith("save_vf:")) {
+            String[] parts = message.split(":");
             vfSaved = true;
 //            if (!vfSaved) {
-                vf.saveValueFunction("ValueFunction.txt");
+                vf.saveValueFunction(
+                        "ValueFunction_T" + parts[1] + "_I" + parts[2] + ".txt");
 //                vfSaved = true;
 //            }
             System.out.println("Value Function has been saved");
             return "message understood, vf saved";
         }
-        if (message.equals("load_vf")) {
+        if (message.startsWith("load_vf:")) {
+            String[] parts = message.split(":");
+//            specs = Integer.valueOf(parts[1]).intValue();
 //            if (!vfSaved) {
-            vf.loadValueFunction("ValueFunction.txt");
+            vf.loadValueFunction(
+                    "ValueFunction_T" + parts[1] + "_I" + parts[2] + ".txt");
+            policyFrozen = true;
 //                vfSaved = true;
 //            }
-            System.out.println("Value Function has been loaded");
+            System.out.println("Value Function has been loaded with learning paused");
             return "message understood, vf loaded";
         }
         if (message.equals("unfreeze_learning")) {
@@ -622,7 +636,9 @@ public class SatisficingMOMIAgent implements AgentInterface {
             System.out.println("Starting temperature changed to " + startingTemperature + " Decay ratio = " + temperatureDecayRatio);
             return "softmax parameters changed";
         } 
-        else if (message.equals("start_new_trial")){
+        else if (message.startsWith("start_new_trial:")){
+            String[] parts = message.split(":");
+            numTrial = Integer.valueOf(parts[1]);
         	resetForNewTrial();
             System.out.println("New trial started: Q-values and other variables reset");
             return "New trial started: Q-values and other variables reset";
