@@ -175,5 +175,72 @@ public class SatisficingMILookupTable extends LookupTable implements ActionSelec
             System.err.println("Problem reading value function from file:: " + ex);
         }
     }
+    public void averageValueFunction(String[] theFileNames, String numTrial) {
+        // load the first value function
+        try {
+            DataInputStream DI = new DataInputStream(new FileInputStream(new File(theFileNames[0])));
+            for (int i = 0; i < numberOfObjectives; i++) {
+                for (int a = 0; a < numberOfActions; a++) {
+                    for (int s = 0; s < numberOfStates; s++) {
+                        valueFunction.get(i)[a][s] = DI.readDouble();
+                    }
+                }
+            }
+            DI.close();
+        } catch (FileNotFoundException ex) {
+            System.err.println("Problem loading value function from file: " + theFileNames[0] + " :: " + ex);
+        } catch (IOException ex) {
+            System.err.println("Problem reading value function from file:: " + ex);
+        }
+
+        // for each subsequent vf listed, read in the values to a blank VF
+        for (int vf = 1; vf < theFileNames.length; vf++) {
+            // take each vf cell value and add it to the existing value function cell value
+            try {
+                DataInputStream DI = new DataInputStream(new FileInputStream(new File(theFileNames[vf])));
+                for (int i = 0; i < numberOfObjectives; i++) {
+                    for (int a = 0; a < numberOfActions; a++) {
+                        for (int s = 0; s < numberOfStates; s++) {
+                            valueFunction.get(i)[a][s] += DI.readDouble();
+                        }
+                    }
+                }
+                DI.close();
+            } catch (FileNotFoundException ex) {
+                System.err.println("Problem loading value function from file: " + theFileNames[vf] + " :: " + ex);
+            } catch (IOException ex) {
+                System.err.println("Problem reading value function from file:: " + ex);
+            }
+
+        }
+
+        // divide the final values by the number of files to create an average
+        for (int i = 0; i < numberOfObjectives; i++) {
+            for (int a = 0; a < numberOfActions; a++) {
+                for (int s = 0; s < numberOfStates; s++) {
+                    valueFunction.get(i)[a][s] = (valueFunction.get(i)[a][s]/ theFileNames.length);
+                }
+            }
+        }
+
+        // Save this vf to a file
+        try {
+            DataOutputStream DO = new DataOutputStream(new FileOutputStream(
+                    new File("ValueFunctionAverage_T" + numTrial + ".txt")));
+            for (int i = 0; i < numberOfObjectives; i++) {
+                for (int a = 0; a < numberOfActions; a++) {
+                    for (int s = 0; s < numberOfStates; s++) {
+                        DO.writeDouble( valueFunction.get(i)[a][s] );
+                    }
+                }
+            }
+            DO.close();
+        } catch (FileNotFoundException ex) {
+            System.err.println("Problem saving value function to file: "
+                    + "ValueFunctionAverage" + numTrial + ".txt" + " :: " + ex);
+        } catch (IOException ex) {
+            System.err.println("Problem writing value function to file:: " + ex);
+        }
+    }
    
 }

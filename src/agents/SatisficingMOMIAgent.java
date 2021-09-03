@@ -37,7 +37,7 @@ public class SatisficingMOMIAgent implements AgentInterface {
     Conscience myConscience;
 
 	// Problem-specific parameters - at some point I need to refactor the code in such a way that these can be set externally
-     int thresholdIndex = 1;  // provide the threshold to initialise at
+     int thresholdIndex = 7;  // provide the threshold to initialise at
 
     // Threshold adjustment details
     int [] delta = {200, 10, 10}; // The learning rate of the apology framework
@@ -45,14 +45,14 @@ public class SatisficingMOMIAgent implements AgentInterface {
     int [] thresholdMaximum = {45, 0, 0}; // The maximum value that each threshold can take
 
      double [][] allThresholds = {
-             {thresholdMaximum[0], thresholdMaximum[1], thresholdMaximum[0]}, //{0, 0, 0},
-             {thresholdMaximum[0], thresholdMaximum[1], thresholdMinimum[0]}, //{0, 0, -50},
-             {thresholdMaximum[0], thresholdMinimum[1], thresholdMaximum[0]}, //{0, -50, 0},
-             {thresholdMaximum[0], thresholdMinimum[1], thresholdMinimum[0]}, //{0, -50, -50},
-             {thresholdMinimum[0], thresholdMaximum[1], thresholdMaximum[0]}, //{-50, 0, 0},
-             {thresholdMinimum[0], thresholdMaximum[1], thresholdMinimum[0]}, //{-50, 0, -50},
-             {thresholdMinimum[0], thresholdMinimum[1], thresholdMaximum[0]}, //{-50, -50, 0},
-             {thresholdMinimum[0], thresholdMinimum[1], thresholdMinimum[0]}, //{-50, -50, -50}
+             {thresholdMaximum[0], thresholdMaximum[1], thresholdMaximum[2]}, //{0, 0, 0},
+             {thresholdMaximum[0], thresholdMaximum[1], thresholdMinimum[2]}, //{0, 0, -50},
+             {thresholdMaximum[0], thresholdMinimum[1], thresholdMaximum[2]}, //{0, -50, 0},
+             {thresholdMaximum[0], thresholdMinimum[1], thresholdMinimum[2]}, //{0, -50, -50},
+             {thresholdMinimum[0], thresholdMaximum[1], thresholdMaximum[2]}, //{-50, 0, 0},
+             {thresholdMinimum[0], thresholdMaximum[1], thresholdMinimum[2]}, //{-50, 0, -50},
+             {thresholdMinimum[0], thresholdMinimum[1], thresholdMaximum[2]}, //{-50, -50, 0},
+             {thresholdMinimum[0], thresholdMinimum[1], thresholdMinimum[2]}, //{-50, -50, -50}
      };
 
 
@@ -559,6 +559,30 @@ public class SatisficingMOMIAgent implements AgentInterface {
 //            }
             System.out.println("Value Function has been loaded with learning paused");
             return "message understood, vf loaded";
+        }
+        if (message.startsWith("average_vf:")) {
+            String[] parts = message.split(":");
+            String numTrial = parts[1];
+
+            String[] vfList = {
+                    "ValueFunction_T" + numTrial + "_I0.txt",
+                    "ValueFunction_T" + numTrial + "_I1.txt",
+                    "ValueFunction_T" + numTrial + "_I2.txt",
+                    "ValueFunction_T" + numTrial + "_I3.txt",
+                    "ValueFunction_T" + numTrial + "_I4.txt",
+                    "ValueFunction_T" + numTrial + "_I5.txt",
+                    "ValueFunction_T" + numTrial + "_I6.txt",
+                    "ValueFunction_T" + numTrial + "_I7.txt"};
+
+
+//            specs = Integer.valueOf(parts[1]).intValue();
+//            if (!vfSaved) {
+            vf.averageValueFunction(vfList, numTrial);
+            policyFrozen = true;
+//                vfSaved = true;
+//            }
+            System.out.println("Value Function has been aggregated");
+            return "message understood, vf aggregated";
         }
         if (message.equals("unfreeze_learning")) {
             policyFrozen = false;
