@@ -37,12 +37,12 @@ public class SatisficingMOMIAgent implements AgentInterface {
     Conscience myConscience;
 
 	// Problem-specific parameters - at some point I need to refactor the code in such a way that these can be set externally
-     int thresholdIndex = 7;  // provide the threshold to initialise at
+     int thresholdIndex = 0;  // provide the threshold to initialise at
 
     // Threshold adjustment details
     int [] delta = {200, 10, 10}; // The learning rate of the apology framework
     int [] thresholdMinimum = {-1000, -50, -50}; // The minimum value that each threshold can take
-    int [] thresholdMaximum = {45, 0, 0}; // The maximum value that each threshold can take
+    int [] thresholdMaximum = {35, 0, 0}; // The maximum value that each threshold can take
 
      double [][] allThresholds = {
              {thresholdMaximum[0], thresholdMaximum[1], thresholdMaximum[2]}, //{0, 0, 0},

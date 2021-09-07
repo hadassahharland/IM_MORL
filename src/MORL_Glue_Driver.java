@@ -1,3 +1,4 @@
+import experiments.EnvTestingExperimentIndividualVF;
 import experiments.FlexibleMIExperimentWithExcelOutput;
 
 import java.io.File;  // Import the File class
@@ -175,7 +176,8 @@ public class MORL_Glue_Driver
 		            //SideEffectExperimentWithExcelOutput.main(null);
 		            //TLOConditionedExperiment.main(null);
 //					  MIExperimentWithExcelOutput.main(null);
-					  FlexibleMIExperimentWithExcelOutput.main(null);
+//					  FlexibleMIExperimentWithExcelOutput.main(null);
+					  EnvTestingExperimentIndividualVF.main(null);
 //					  ApologeticMIExperimentWithExcelOutput.main(null);
 //					  MVPExperimentWithExcelOutput.main(null);
 		          }

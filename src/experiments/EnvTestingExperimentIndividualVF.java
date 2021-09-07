@@ -24,7 +24,7 @@ public class EnvTestingExperimentIndividualVF
     private final double ALPHA = 0.1;
     private final double LAMBDA = 0.95;
     private final double GAMMA = 1.0;
-    private final int NUM_TRIALS = 2;   // usually 20
+    private final int NUM_TRIALS = 10;
 
     // enable this group of declarations for egreedy exploration
 //    private final int EXPLORATION = TLO_LookupTable.EGREEDY;
@@ -90,23 +90,25 @@ public class EnvTestingExperimentIndividualVF
 //    private final boolean [] SERIES_IS_ONLINE = {false, false, false, false, false, false, false, false, false};
 //    private final int[] SERIES_THRESHOLD_INDEX = {0, 0, 1, 2, 3, 4, 5, 6, 7};
     private final boolean LOAD_VF = false;
+    private final boolean AVERAGE_VF = false;
     private final int [] NUM_EPISODES_PER_SERIES = {4000, 10, 10, 10, 10, 10, 10, 10, 10};//{4000, 10, 10, 10, 10, 10, 10, 10, 10};
     private final boolean [] SERIES_IS_ONLINE = {true, false, false, false, false, false, false, false, false};
-    private final int[] SERIES_THRESHOLD_INDEX = {7, 0, 1, 2, 3, 4, 5, 6, 7};
-    private final int initThresholdIndex = SERIES_THRESHOLD_INDEX[0];
+    private final int[] SERIES_THRESHOLD_INDEX = {0, 0, 1, 2, 3, 4, 5, 6, 7};
+    private final int initThresholdIndex = SERIES_THRESHOLD_INDEX[0] ;
 
 //    private final int [] NUM_EPISODES_PER_SERIES = {4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 10, 10, 10, 10, 10, 10, 10, 10};
 //    private final boolean [] SERIES_IS_ONLINE = {true, true, true, true, true, true, true, true, false, false, false, false, false, false, false, false};
 //    private final int[] SERIES_THRESHOLD_INDEX = {4, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7};
 
-//    private final int [] NUM_EPISODES_PER_SERIES = {4000, 10, 10, 10, 10, 10, 10, 10, 10,
-//            4, 10, 10, 10, 10, 10, 10, 10, 10,
-//            4, 10, 10, 10, 10, 10, 10, 10, 10,
-//            4, 10, 10, 10, 10, 10, 10, 10, 10,
-//            4, 10, 10, 10, 10, 10, 10, 10, 10,
-//            4, 10, 10, 10, 10, 10, 10, 10, 10,
-//            4, 10, 10, 10, 10, 10, 10, 10, 10,
-//            4, 10, 10, 10, 10, 10, 10, 10, 10};
+//    private final int SUBS = 20;
+//    private final int [] NUM_EPISODES_PER_SERIES = {0, 10, 10, 10, 10, 10, 10, 10, 10,
+//            SUBS, 10, 10, 10, 10, 10, 10, 10, 10,
+//            SUBS, 10, 10, 10, 10, 10, 10, 10, 10,
+//            SUBS, 10, 10, 10, 10, 10, 10, 10, 10,
+//            SUBS, 10, 10, 10, 10, 10, 10, 10, 10,
+//            SUBS, 10, 10, 10, 10, 10, 10, 10, 10,
+//            SUBS, 10, 10, 10, 10, 10, 10, 10, 10,
+//            SUBS, 10, 10, 10, 10, 10, 10, 10, 10};
 //    private final boolean [] SERIES_IS_ONLINE = {true, false, false, false, false, false, false, false, false,
 //            true, false, false, false, false, false, false, false, false,
 //            true, false, false, false, false, false, false, false, false,
@@ -123,7 +125,7 @@ public class EnvTestingExperimentIndividualVF
 //            5, 0, 1, 2, 3, 4, 5, 6, 7,
 //            6, 0, 1, 2, 3, 4, 5, 6, 7,
 //            7, 0, 1, 2, 3, 4, 5, 6, 7};
-
+//    private final int initThresholdIndex = 0; //SERIES_THRESHOLD_INDEX[0] ;
 
     private final int EXPLORATION_DECAY_LENGTH = 4000; // Sub in for parameters measured off learning
     private final int MAX_EPISODE_LENGTH = 1000;
@@ -189,6 +191,7 @@ public class EnvTestingExperimentIndividualVF
             RLGlue.RL_agent_message("start_new_trial:"+trial);
             RLGlue.RL_env_message("start_new_trial:"+trial);
             if(LOAD_VF) { RLGlue.RL_agent_message("load_vf:"+trial+":"+initThresholdIndex); }
+            if (AVERAGE_VF) { RLGlue.RL_agent_message("average_vf:"+trial); }
 
 
             // Iterate through to run the simulations
