@@ -182,7 +182,7 @@ public class WatchedLivingRoomWithTableAndCat implements EnvironmentInterface
         String taskSpecString = theTaskSpecObject.toTaskSpec();
         TaskSpec.checkTaskSpec(taskSpecString);
 
-        this.watcher = new ConfigurableActor("TidyToni"); // IndifferentIra, TidyToni, QuietQuinn, SensitiveSami
+        this.watcher = new ConfigurableActor("IndifferentIra"); // IndifferentIra, TidyToni, QuietQuinn, SensitiveSami
 
         return taskSpecString;
     }

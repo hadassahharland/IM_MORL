@@ -33,18 +33,22 @@ import java.util.Stack;
 
 public class SatisficingMOMIAgent implements AgentInterface {
 
-    boolean isApologetic = false; // manual set
+    boolean isApologetic = false; // set by message call
+    boolean conscienceInit = false;
     Conscience myConscience;
 
 	// Problem-specific parameters - at some point I need to refactor the code in such a way that these can be set externally
-     int thresholdIndex = 0;  // provide the threshold to initialise at
+     int thresholdIndex = 4;  // provide the threshold to initialise at
 
     // Threshold adjustment details
-    int [] delta = {200, 10, 10}; // The learning rate of the apology framework
     int [] thresholdMinimum = {-1000, -50, -50}; // The minimum value that each threshold can take
     int [] thresholdMaximum = {35, 0, 0}; // The maximum value that each threshold can take
+    int alr = 10; // apologetic learning rate
+    double [] delta = {((double)(thresholdMaximum[0]-thresholdMinimum[0]))/alr,
+            ((double)(thresholdMaximum[1]-thresholdMinimum[1]))/alr,
+            ((double)(thresholdMaximum[2]-thresholdMinimum[2]))/alr}; // The learning rate of the apology framework
 
-     double [][] allThresholds = {
+    double [][] allThresholds = {
              {thresholdMaximum[0], thresholdMaximum[1], thresholdMaximum[2]}, //{0, 0, 0},
              {thresholdMaximum[0], thresholdMaximum[1], thresholdMinimum[2]}, //{0, 0, -50},
              {thresholdMaximum[0], thresholdMinimum[1], thresholdMaximum[2]}, //{0, -50, 0},
@@ -53,7 +57,9 @@ public class SatisficingMOMIAgent implements AgentInterface {
              {thresholdMinimum[0], thresholdMaximum[1], thresholdMinimum[2]}, //{-50, 0, -50},
              {thresholdMinimum[0], thresholdMinimum[1], thresholdMaximum[2]}, //{-50, -50, 0},
              {thresholdMinimum[0], thresholdMinimum[1], thresholdMinimum[2]}, //{-50, -50, -50}
-     };
+    };
+
+    double [] currentThresholds;
 
 
 
@@ -109,7 +115,7 @@ public class SatisficingMOMIAgent implements AgentInterface {
     int numOfSteps;
     int numEpisodes;
     int numTrial;
-//    int numTrial;
+    int thisTrial;
     boolean vfSaved = false;
     double accumulatedPrimaryReward; // needs to be stored, and then discretised and used to augment the environmental state
     double accumulatedImpact1; // sum the impact reward received so far
@@ -132,11 +138,12 @@ public class SatisficingMOMIAgent implements AgentInterface {
 //        numStates = numEnvtStates * numDiscretisationsOfReward; // agent state = environmental-state U accumulated-primary-reward
         numStates = numEnvtStates * 3; // agent state = environmental-state U accumulated-primary-reward
         numOfObjectives = theTaskSpec.getNumOfObjectives();
+        thisTrial = -2;
         vf = new SatisficingMILookupTable(numOfObjectives, numActions, numStates, 0, primaryRewardThreshold, impactThreshold1, impactThreshold2);
 
-        if (isApologetic) {
-            myConscience = new Conscience();
-        }
+//        if (isApologetic) {
+//            myConscience = new Conscience();
+//        }
 
         refreshThresholds();
         String str = "Thresholds: P = " + primaryRewardThreshold + ", A1 = " + impactThreshold1 + ", A2 = " + impactThreshold2;
@@ -157,8 +164,8 @@ public class SatisficingMOMIAgent implements AgentInterface {
 
     private void resetForNewTrial()
     {
-//        vf.saveValueFunction("ValueFunction_Trial" + numTrial);
-//        numTrial += 1;
+        thisTrial += 1;
+//        System.out.println("Reset Agent for new trial: " + thisTrial);
     	policyFrozen = false;
     	vfSaved = false;
         numOfSteps = 0;
@@ -167,6 +174,7 @@ public class SatisficingMOMIAgent implements AgentInterface {
         temperature = startingTemperature;
         // reset Q-values
 //        vf.loadValueFunction("ValueFunction_Trial0");
+        currentThresholds = allThresholds[thresholdIndex];
         accumulatedPrimaryReward = 0.0; accumulatedImpact1 = 0.0; accumulatedImpact2 = 0.0;
         vf.setAccumulatedReward(accumulatedPrimaryReward);
         vf.setAccumulatedImpact1(accumulatedImpact1);
@@ -266,6 +274,11 @@ public class SatisficingMOMIAgent implements AgentInterface {
     @Override
     public Action agent_step(Reward reward, Observation observation) 
     {
+        if (numOfSteps == 0 & numEpisodes == 1) {
+            // first step of first episode, print initial thresholds
+//            System.out.println("I CAN SEE THIS: trial = " + thisTrial);
+            printThresholds(-1, currentThresholds);
+        }
         // Assess and Apologise happens after the agent has completed the action and the environment is updated.
         // This state is confirmed to be the case at the initiation of the new agent step
         // if this is not the first step, then complete the sequence before determining the next action.
@@ -507,11 +520,11 @@ public class SatisficingMOMIAgent implements AgentInterface {
 
         for (int i=0; i<thresholds.length; i++) {
             if (i == thresholdAdjustIndex) {
-                thresholds[i] += 2*delta[i];
+                thresholds[i] += delta[i];
                 // Only need to check maximum if the threshold is increased
                 if (thresholds[i] > thresholdMaximum[i]) { thresholds[i] = thresholdMaximum[i]; }
             } else {
-                thresholds[i] += -1*delta[i];
+                thresholds[i] += -0.5*delta[i];
                 // Only need to check minimum if the threshold is decreased
                 if (thresholds[i] < thresholdMinimum[i]) { thresholds[i] = thresholdMinimum[i]; }
             }
@@ -524,6 +537,8 @@ public class SatisficingMOMIAgent implements AgentInterface {
         printToFile("Thresholds now set to; P = " + thresholds[0]
                 + ", A1 = " + thresholds[1]
                 + ", A2 = " + thresholds[2]);
+        this.currentThresholds = thresholds;
+        printThresholds(numEpisodes, thresholds);
     }
 
     @Override
@@ -562,22 +577,22 @@ public class SatisficingMOMIAgent implements AgentInterface {
         }
         if (message.startsWith("average_vf:")) {
             String[] parts = message.split(":");
-            String numTrial = parts[1];
+            String trialNum = parts[1];
 
             String[] vfList = {
-                    "ValueFunction_T" + numTrial + "_I0.txt",
-                    "ValueFunction_T" + numTrial + "_I1.txt",
-                    "ValueFunction_T" + numTrial + "_I2.txt",
-                    "ValueFunction_T" + numTrial + "_I3.txt",
-                    "ValueFunction_T" + numTrial + "_I4.txt",
-                    "ValueFunction_T" + numTrial + "_I5.txt",
-                    "ValueFunction_T" + numTrial + "_I6.txt",
-                    "ValueFunction_T" + numTrial + "_I7.txt"};
+                    "ValueFunction_T" + trialNum + "_I0.txt",
+                    "ValueFunction_T" + trialNum + "_I1.txt",
+                    "ValueFunction_T" + trialNum + "_I2.txt",
+                    "ValueFunction_T" + trialNum + "_I3.txt",
+                    "ValueFunction_T" + trialNum + "_I4.txt",
+                    "ValueFunction_T" + trialNum + "_I5.txt",
+                    "ValueFunction_T" + trialNum + "_I6.txt",
+                    "ValueFunction_T" + trialNum + "_I7.txt"};
 
 
 //            specs = Integer.valueOf(parts[1]).intValue();
 //            if (!vfSaved) {
-            vf.averageValueFunction(vfList, numTrial);
+            vf.averageValueFunction(vfList, trialNum);
             policyFrozen = true;
 //                vfSaved = true;
 //            }
@@ -595,6 +610,20 @@ public class SatisficingMOMIAgent implements AgentInterface {
             thresholdIndex = Integer.valueOf(parts[1]).intValue();
             if (thresholdIndex >= 0) {
                 System.out.println("Threshold Index: " + thresholdIndex);
+                refreshThresholds();
+                return "message understood, threshold updated";
+            }
+            else {
+                System.out.println("Thresholds retained");
+                return "message understood, threshold retained";
+            }
+        }
+        if (message.startsWith("update_threshold_suppressed:")) {
+            String[] parts = message.split(":");
+            thresholdIndex = Integer.valueOf(parts[1]).intValue();
+            if (thresholdIndex >= 0) {
+                // suppress print
+//                System.out.println("Threshold Index: " + thresholdIndex);
                 refreshThresholds();
                 return "message understood, threshold updated";
             }
@@ -677,6 +706,20 @@ public class SatisficingMOMIAgent implements AgentInterface {
     		debugging = false;
     		return "Debugging disabled in agent";
     	}
+        else if (message.equals("apologetic_true"))
+        {
+            isApologetic = true;
+            if (!conscienceInit) {
+                myConscience = new Conscience();
+                conscienceInit = true;
+            }
+            return "Apology enabled in agent";
+        }
+        else if (message.equals("apologetic_false"))
+        {
+            isApologetic = false;
+            return "Apology disabled in agent";
+        }
         System.out.println("SatisficingMOAgent - unknown message: " + message);
         return "SatisficingMOAgent does not understand your message.";
     }
@@ -708,6 +751,21 @@ public class SatisficingMOMIAgent implements AgentInterface {
         try {
             FileWriter myWriter = new FileWriter("AdditionalConsoleOutput.txt", true);
             myWriter.write(str + System.lineSeparator());
+            myWriter.close();
+//            System.out.println("Successfully wrote to the file.");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    public void printThresholds(int episodeNum, double [] thresholds) {
+        try {
+            FileWriter myWriter = new FileWriter("ThresholdsOutput_T"+ thisTrial +".txt", true);
+            myWriter.write(episodeNum +", "
+                    + thresholds[0] +", "
+                    + thresholds[1] +", "
+                    + thresholds[2] + System.lineSeparator());
             myWriter.close();
 //            System.out.println("Successfully wrote to the file.");
         } catch (IOException e) {

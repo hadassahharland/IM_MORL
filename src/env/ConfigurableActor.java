@@ -24,6 +24,8 @@ public class ConfigurableActor implements ActorInterface{
     private int episode;
     private int step;
 
+    private int storedJust;
+
 //    private int [] ON = {50, 50, 50, 50};
 //    private final int OFF = -10000;
 
@@ -42,6 +44,8 @@ public class ConfigurableActor implements ActorInterface{
         random = new Random(578);
         System.out.println("Initiating Actor: " + type);
         persistence = 1;
+
+        storedJust = -2; // init value to avoid updating prior to reacting
 
         if (agentType.equals("IndifferentIra")){
             // doesn't care about anything
@@ -71,8 +75,12 @@ public class ConfigurableActor implements ActorInterface{
         episode = -1;
     }
 
+    public void reaction(boolean[] watchedStates) {
+        updatePreviousReaction();
+        storedJust = nextReaction(watchedStates);
+    }
 
-    public void reaction(boolean[] watchedStates) { // Defines the reaction to the Reward, sets the env.Attitude and Justification
+    public int nextReaction(boolean[] watchedStates) { // Defines the reaction to the Reward, sets the env.Attitude and Justification
         boolean[] states = new boolean[]{step < 50, watchedStates[0], watchedStates[1]};
         // Part 1: determine outcome of reaction
 //        double[] diff = new double[]{0, 0, 0, 0};
@@ -110,12 +118,19 @@ public class ConfigurableActor implements ActorInterface{
             if (random.nextDouble() > persistence) {  // Actor is NOT still upset
                 // Then the actor will not still be upset about the existing justification
                 // if the actor has become upset at this action, then react
-                react(just);
+                return just;
             } // else (if the actor IS still upset) { nothing should change }
         } else {
             // If the actor is not already unhappy, then they can react to the new information
             // Then the actor should react
-            react(just);
+            return just;
+        }
+        return -2;
+    }
+
+    private void updatePreviousReaction() {
+        if (storedJust > -2) {
+            react(storedJust);
         }
         printFourToFile(Integer.toString(episode), Integer.toString(step), Integer.toString(attitude), Integer.toString(justification));
         step += 1; //next step

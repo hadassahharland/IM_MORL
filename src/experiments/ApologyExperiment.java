@@ -10,11 +10,12 @@ import tools.spreadsheet.ExcelWriter;
 import tools.spreadsheet.JxlExcelWriter;
 import tools.valuefunction.TLO_LookupTable;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Timestamp;
 
-public class EnvTestingExperimentIndividualVF
+public class ApologyExperiment
 {
 
     private int whichEpisode = 0;
@@ -26,18 +27,6 @@ public class EnvTestingExperimentIndividualVF
     private final double GAMMA = 1.0;
     private final int NUM_TRIALS = 10;
 
-    // enable this group of declarations for egreedy exploration
-//    private final int EXPLORATION = TLO_LookupTable.EGREEDY;
-//    private final String METHOD_PREFIX = "EGREEDY";
-//    private final String PARAM_CHANGE_STRING = "set_egreedy_parameters";
-//    private double EXPLORATION_PARAMETER = 0.9;
-
-    // enable this group of declarations for softmax-epsilon exploration
-    //private int EXPLORATION = TLO_LookupTable.SOFTMAX_ADDITIVE_EPSILON;
-    //private final String METHOD_PREFIX = "SOFTMAX_E";
-    //private final String PARAM_CHANGE_STRING = "set_softmax_parameters";
-    //private double EXPLORATION_PARAMETER = 10;
-
     // enable this group of declarations for softmax-epsilon exploration
     private int EXPLORATION = TLO_LookupTable.SOFTMAX_TOURNAMENT;
     private final String METHOD_PREFIX = "SOFTMAX_T";
@@ -45,92 +34,16 @@ public class EnvTestingExperimentIndividualVF
     private double EXPLORATION_PARAMETER = 10; // usually 10
 
 
-    // alter these declarations to match the Environment being used
-    // Settings for the BreakableBottles task
-    //private final String ENVIRONMENT_PREFIX = "Breakable";
-    //private final int NUM_ONLINE_EPISODES_PER_TRIAL = 5000;
-    //private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 100;
-    //private final int MAX_EPISODE_LENGTH = 1000;
-    // Settings for the UnbreakableBottles task
-//    private final String ENVIRONMENT_PREFIX = "Doors";  //"MVPConsiderateNoRubbish";
-//    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 2000;
-//    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 100;
-//    private final int MAX_EPISODE_LENGTH = 1000;
-//     Settings for the Sokoban task
-//    private final String ENVIRONMENT_PREFIX = "Sokoban";
-//    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
-//    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 1;
-//    private final int MAX_EPISODE_LENGTH = 1000;
-    // Settings for the Doors task
-    //private final String ENVIRONMENT_PREFIX = "Doors";
-    //private final int NUM_ONLINE_EPISODES_PER_TRIAL = 5000;
-    //private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 1;
-    //private final int MAX_EPISODE_LENGTH = 1000;
-//    private final String ENVIRONMENT_PREFIX = "MVPConsiderateNoRubbish";
-//    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
-//    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
-//    private final int MAX_EPISODE_LENGTH = 1000;
-//      private final String ENVIRONMENT_PREFIX = "MVPConsiderateOneRubbish";
-//    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
-//    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
-//    private final int MAX_EPISODE_LENGTH = 1000;
-//    private final String ENVIRONMENT_PREFIX = "MVPConsiderateUnderTable";
-//    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
-//    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
-//    private final int MAX_EPISODE_LENGTH = 1000;
-//    private final String ENVIRONMENT_PREFIX = "MVPConsiderateBehindTable";
-//    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 1000;
-//    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
-//    private final int MAX_EPISODE_LENGTH = 1000;
     private final String ENVIRONMENT_PREFIX = "TableAndCat";
-//    private final int NUM_ONLINE_EPISODES_PER_TRIAL = 0;
-//    private final int NUM_OFFLINE_EPISODES_PER_TRIAL = 10;
-    // Introducing "series" as a set of episodes of consistent behaviour within a trial
-//    private final int [] NUM_EPISODES_PER_SERIES = {0, 100, 100, 100, 100, 100, 100, 100, 100};
-//    private final boolean [] SERIES_IS_ONLINE = {false, false, false, false, false, false, false, false, false};
-//    private final int[] SERIES_THRESHOLD_INDEX = {0, 0, 1, 2, 3, 4, 5, 6, 7};
+
     private final boolean LOAD_VF = true;
-    private final boolean AVERAGE_VF = false;
-//    private final int [] NUM_EPISODES_PER_SERIES = {0, 10, 10, 10, 10, 10, 10, 10, 10};//{4000, 10, 10, 10, 10, 10, 10, 10, 10};
-//    private final boolean [] SERIES_IS_ONLINE = {false, false, false, false, false, false, false, false, false};
-//    private final int[] SERIES_THRESHOLD_INDEX = {0, 0, 1, 2, 3, 4, 5, 6, 7};
-//    private final int initThresholdIndex = SERIES_THRESHOLD_INDEX[0] ;
-
-//    private final int [] NUM_EPISODES_PER_SERIES = {4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 10, 10, 10, 10, 10, 10, 10, 10};
-//    private final boolean [] SERIES_IS_ONLINE = {true, true, true, true, true, true, true, true, false, false, false, false, false, false, false, false};
-//    private final int[] SERIES_THRESHOLD_INDEX = {4, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7};
-
-    private final int SUBS = 1000;
-    private final int [] NUM_EPISODES_PER_SERIES = {0, 10, 10, 10, 10, 10, 10, 10, 10,
-            SUBS, 10, 10, 10, 10, 10, 10, 10, 10,
-            SUBS, 10, 10, 10, 10, 10, 10, 10, 10,
-            SUBS, 10, 10, 10, 10, 10, 10, 10, 10,
-            SUBS, 10, 10, 10, 10, 10, 10, 10, 10,
-            SUBS, 10, 10, 10, 10, 10, 10, 10, 10,
-            SUBS, 10, 10, 10, 10, 10, 10, 10, 10,
-            SUBS, 10, 10, 10, 10, 10, 10, 10, 10};
-    private final boolean [] SERIES_IS_ONLINE = {true, false, false, false, false, false, false, false, false,
-            true, false, false, false, false, false, false, false, false,
-            true, false, false, false, false, false, false, false, false,
-            true, false, false, false, false, false, false, false, false,
-            true, false, false, false, false, false, false, false, false,
-            true, false, false, false, false, false, false, false, false,
-            true, false, false, false, false, false, false, false, false,
-            true, false, false, false, false, false, false, false, false};
-    private final int[] SERIES_THRESHOLD_INDEX = {0, 0, 1, 2, 3, 4, 5, 6, 7,
-            1, 0, 1, 2, 3, 4, 5, 6, 7,
-            2, 0, 1, 2, 3, 4, 5, 6, 7,
-            3, 0, 1, 2, 3, 4, 5, 6, 7,
-            4, 0, 1, 2, 3, 4, 5, 6, 7,
-            5, 0, 1, 2, 3, 4, 5, 6, 7,
-            6, 0, 1, 2, 3, 4, 5, 6, 7,
-            7, 0, 1, 2, 3, 4, 5, 6, 7};
-    private final int initThresholdIndex = 0; //SERIES_THRESHOLD_INDEX[0] ;
+    private final int [] NUM_EPISODES_PER_SERIES = {10, 100, 10};//{4000, 10, 10, 10, 10, 10, 10, 10, 10};
+    private final boolean [] SERIES_IS_ONLINE = {false, false, false};
+    private final boolean [] SERIES_IS_APOLOGETIC = {false, true, false};
+    private final int INIT_THRESHOLD_INDEX = 4;
 
     private final int EXPLORATION_DECAY_LENGTH = 4000; // Sub in for parameters measured off learning
     private final int MAX_EPISODE_LENGTH = 1000;
-
-
 
     private final String FILENAME_PREFIX = ENVIRONMENT_PREFIX + "-";
     private ExcelWriter excel;
@@ -152,7 +65,7 @@ public class EnvTestingExperimentIndividualVF
 
     public void runExperiment() {
 
-        if (!(NUM_EPISODES_PER_SERIES.length == SERIES_IS_ONLINE.length & NUM_EPISODES_PER_SERIES.length == SERIES_THRESHOLD_INDEX.length)) {
+        if (!(NUM_EPISODES_PER_SERIES.length == SERIES_IS_ONLINE.length)) {
             System.out.println("ERROR!!! Experiment Series settings inconsistent lengths!");
             System.exit(0); // shut down the experiment + hopefully everything else launched by the Driver program (server, agent, environment)
         }
@@ -182,6 +95,8 @@ public class EnvTestingExperimentIndividualVF
         // run the trials
         for (int trial=0; trial<NUM_TRIALS; trial++)
         {
+            createFile("ThresholdsOutput_T" + trial +".txt");
+
             printNewTrial(trial);
             // start new excel sheet and include header row
             excel.moveToNewSheet("Trial"+trial, trial);
@@ -190,9 +105,11 @@ public class EnvTestingExperimentIndividualVF
             System.out.println("Trial " + trial);
             RLGlue.RL_agent_message("start_new_trial:"+trial);
             RLGlue.RL_env_message("start_new_trial:"+trial);
-            if(LOAD_VF) { RLGlue.RL_agent_message("load_vf:"+trial+":"+initThresholdIndex); }
-            if (AVERAGE_VF) { RLGlue.RL_agent_message("average_vf:"+trial); }
+            if(LOAD_VF) { RLGlue.RL_agent_message("load_vf:"+trial+":"+"A8"); }  // hardcoded to load A8 vfs
+//            if (AVERAGE_VF) { RLGlue.RL_agent_message("average_vf:"+trial); }
 
+            // Set the threshold used
+            RLGlue.RL_agent_message("update_threshold:" + INIT_THRESHOLD_INDEX);
 
             // Iterate through to run the simulations
             int episodeCounter = 0;
@@ -203,17 +120,28 @@ public class EnvTestingExperimentIndividualVF
 //                if (!NEW_VF) {
 //                    RLGlue.RL_agent_message("load_vf");        // load the value function
 //                }
+
+//                String lab;
+//                if (SERIES_IS_ONLINE[seriesNum]) {
+//                    lab = "Online" + seriesNum + "&";
+//                    RLGlue.RL_agent_message("unfreeze_learning");		// turn on learning and exploration
+//                } else {
+//                    lab = "Offline" + seriesNum + "&";
+//                    RLGlue.RL_agent_message("freeze_learning");		// turn off learning and exploration for offline assessment of the final policy
+//                }
+
+                RLGlue.RL_agent_message("freeze_learning"); // learning frozen for all apologetic scenarios
                 String lab;
-                if (SERIES_IS_ONLINE[seriesNum]) {
-                    lab = "Online" + seriesNum + "&";
-                    RLGlue.RL_agent_message("unfreeze_learning");		// turn on learning and exploration
+                if (SERIES_IS_APOLOGETIC[seriesNum]) {
+                    lab = "Apologetic" + seriesNum + "&";
+                    RLGlue.RL_agent_message("apologetic_true");		// turn on learning and exploration
                 } else {
-                    lab = "Offline" + seriesNum + "&";
-                    RLGlue.RL_agent_message("freeze_learning");		// turn off learning and exploration for offline assessment of the final policy
+                    lab = "UnApologetic" + seriesNum + "&";
+                    RLGlue.RL_agent_message("apologetic_false");		// turn off learning and exploration for offline assessment of the final policy
                 }
 
-                // Set the threshold used
-                RLGlue.RL_agent_message("update_threshold:" + SERIES_THRESHOLD_INDEX[seriesNum]);
+//                // Set the threshold used
+//                RLGlue.RL_agent_message("update_threshold:" + SERIES_THRESHOLD_INDEX[seriesNum]);
 
 
                 for (int episodeNum = 0; episodeNum < NUM_EPISODES_PER_SERIES[seriesNum]; episodeNum++) {
@@ -231,7 +159,7 @@ public class EnvTestingExperimentIndividualVF
                 excel.writeNextRowTextAndFormula("Mean over all series " + seriesNum + " episodes& ", formulas);
                 episodeCounter += NUM_EPISODES_PER_SERIES[seriesNum];
             } // end series Averaging "for" loop
-            RLGlue.RL_agent_message("save_vf:"+trial+":"+initThresholdIndex);
+//            RLGlue.RL_agent_message("save_vf:"+trial+":"+INIT_THRESHOLD_INDEX);
 
             // Get Timestamp
             Timestamp ts = new Timestamp(System.currentTimeMillis());
@@ -281,10 +209,37 @@ public class EnvTestingExperimentIndividualVF
             }
     }
 
+    public static void createFile(String name) {
+        try {
+            File output = new File(name);
+            if (output.createNewFile()) {
+                System.out.println("File created: " + output.getName());
+            } else {
+                System.out.println("File will be overwritten");
+                output.delete();
+                output.createNewFile();
+                System.out.println("File created: " + output.getName());
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+        try {
+            FileWriter myWriter = new FileWriter(name, true);
+            myWriter.write("Episode, T_P, T_A1, T_A2" + System.lineSeparator());
+            myWriter.close();
+//            System.out.println("Successfully wrote to the file.");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+
+    }
+
 
 
     public static void main(String[] args) {
-        EnvTestingExperimentIndividualVF theExperiment = new EnvTestingExperimentIndividualVF();
+        ApologyExperiment theExperiment = new ApologyExperiment();
         theExperiment.runExperiment();
         System.exit(0); // shut down the experiment + hopefully everything else launched by the Driver program (server, agent, environment)
     }

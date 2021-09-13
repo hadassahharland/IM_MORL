@@ -1,6 +1,7 @@
 package env;
 
 public final class Attitude {
+
     private static int attitude = 0;
 //    private static int justification = -1;
 
