@@ -12,11 +12,14 @@ public class Conscience {
     public int notThis;
     public int resetDelay;
     private boolean apologised;
+    private double[] priorRewards;
+    private double[] theseRewards;
 
     public Conscience() {
         episode = -1;
         apologised = false;
         printToConscienceOutputFile("Episode", "Step", "env.Attitude", "Justification");  // add headings to file
+        priorRewards = new double[]{0, 0, 0}; // initial set
     }
 
     public void cleanUp() {
@@ -27,10 +30,12 @@ public class Conscience {
         this.episode += 1;
         this.step = 0;
         this.apologised = false;
+        priorRewards = new double[]{0, 0, 0}; // reset
     }
 
     // Create wrapper method that contains steps for each action
     public int assess(double[] accumulatedRewards, int attitude) {
+        this.theseRewards = accumulatedRewards;
         // At the end of each action, the agent must step through a process defined by the following methods
         // if the actor is upset, determine fault
         printToConscienceOutputFile("Accumulated Rewards:",
@@ -78,15 +83,21 @@ public class Conscience {
 
     public int determineFault(double[] accumulatedRewards) {
         // Using a negative reward approach:
-        int imin = 0;  // Initialised to prevent unexpected crashes, should always be overwritten
+        int imin = -1;  // Initialised to prevent unexpected crashes, should always be overwritten
         double min = 0;
         int just = -1;
 
         // Iterate over each objective
         for (int i = 0; i < accumulatedRewards.length; i++) {
-            if (!(i == notThis) & (accumulatedRewards[i] < min)){;  // don't assess the "not this" objective
-            // If the value is less than the running minimum (selects latest objectives with priority in a tie)
-            // Then save the index of that value
+//            if ((accumulatedRewards[i] < min)){;  // !(i == notThis) & don't assess the "not this" objective
+//            // If the value is less than the running minimum (selects latest objectives with priority in a tie)
+//            // Then save the index of that value
+//                imin = i;
+//                min = accumulatedRewards[i];
+//            }
+            if (((accumulatedRewards[i] - priorRewards[i]) < min)){;  // !(i == notThis) & don't assess the "not this" objective
+                // If the value is less than the running minimum (selects latest objectives with priority in a tie)
+                // Then save the index of that value
                 imin = i;
                 min = accumulatedRewards[i];
             }
@@ -95,8 +106,11 @@ public class Conscience {
         if (accumulatedRewards[imin] < 0) {
             just = imin;
         }
-        this.resetDelay -= 1; // count down the reset counter
-        if (resetDelay <= 0) { this.notThis = -1; } // if it hits zero, reset "not this"
+//        this.resetDelay -= 1; // count down the reset counter
+//        if (resetDelay <= 0) { this.notThis = -1; } // if it hits zero, reset "not this"
+
+        this.priorRewards = accumulatedRewards;
+
         return just;
     }
 
