@@ -181,8 +181,8 @@ public class WatchedLivingRoomWithTableAndCat implements EnvironmentInterface
         //Convert specification object to a string
         String taskSpecString = theTaskSpecObject.toTaskSpec();
         TaskSpec.checkTaskSpec(taskSpecString);
-
-        this.watcher = new ConfigurableActor("IndifferentIra"); // IndifferentIra, TidyToni, QuietQuinn, SensitiveSami
+        String[] actorTypes = new String[]{"IndifferentIra", "TidyToni", "QuietQuinn", "SensitiveSami"};
+        this.watcher = new ConfigurableActor("TidyToni"); // IndifferentIra, TidyToni, QuietQuinn, SensitiveSami
 
         return taskSpecString;
     }

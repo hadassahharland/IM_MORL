@@ -37,10 +37,10 @@ public class ApologyExperiment
     private final String ENVIRONMENT_PREFIX = "TableAndCat";
 
     private final boolean LOAD_VF = true;
-    private final int [] NUM_EPISODES_PER_SERIES = {10, 100, 10};//{4000, 10, 10, 10, 10, 10, 10, 10, 10};
+    private final int [] NUM_EPISODES_PER_SERIES = {10, 10, 10};//{4000, 10, 10, 10, 10, 10, 10, 10, 10};
     private final boolean [] SERIES_IS_ONLINE = {false, false, false};
     private final boolean [] SERIES_IS_APOLOGETIC = {false, true, false};
-    private final int INIT_THRESHOLD_INDEX = 4;
+    private final int INIT_THRESHOLD_INDEX = 0;
 
     private final int EXPLORATION_DECAY_LENGTH = 4000; // Sub in for parameters measured off learning
     private final int MAX_EPISODE_LENGTH = 1000;

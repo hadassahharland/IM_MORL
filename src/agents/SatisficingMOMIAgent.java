@@ -35,18 +35,20 @@ public class SatisficingMOMIAgent implements AgentInterface {
 
     boolean isApologetic = false; // set by message call
     boolean conscienceInit = false;
+    boolean[] apologisedFor;
     Conscience myConscience;
 
 	// Problem-specific parameters - at some point I need to refactor the code in such a way that these can be set externally
-     int thresholdIndex = 4;  // provide the threshold to initialise at
+     int thresholdIndex = 0;  // provide the threshold to initialise at
 
     // Threshold adjustment details
     int [] thresholdMinimum = {-1000, -50, -50}; // The minimum value that each threshold can take
     int [] thresholdMaximum = {35, 0, 0}; // The maximum value that each threshold can take
-    int alr = 10; // apologetic learning rate
-    double [] delta = {((double)(thresholdMaximum[0]-thresholdMinimum[0]))/alr,
-            ((double)(thresholdMaximum[1]-thresholdMinimum[1]))/alr,
-            ((double)(thresholdMaximum[2]-thresholdMinimum[2]))/alr}; // The learning rate of the apology framework
+//    int alr = 10; // apologetic learning rate
+//    double [] delta = {((double)(thresholdMaximum[0]-thresholdMinimum[0]))/alr,
+//            ((double)(thresholdMaximum[1]-thresholdMinimum[1]))/alr,
+//            ((double)(thresholdMaximum[2]-thresholdMinimum[2]))/alr}; // The learning rate of the apology framework
+    double [] delta = {103.5, 5, 5}; //explicitly calculated
 
     double [][] allThresholds = {
              {thresholdMaximum[0], thresholdMaximum[1], thresholdMaximum[2]}, //{0, 0, 0},
@@ -139,6 +141,7 @@ public class SatisficingMOMIAgent implements AgentInterface {
         numStates = numEnvtStates * 3; // agent state = environmental-state U accumulated-primary-reward
         numOfObjectives = theTaskSpec.getNumOfObjectives();
         thisTrial = -2;
+        apologisedFor = new boolean[]{false, false, false};
         vf = new SatisficingMILookupTable(numOfObjectives, numActions, numStates, 0, primaryRewardThreshold, impactThreshold1, impactThreshold2);
 
 //        if (isApologetic) {
@@ -175,6 +178,7 @@ public class SatisficingMOMIAgent implements AgentInterface {
         // reset Q-values
 //        vf.loadValueFunction("ValueFunction_Trial0");
         currentThresholds = allThresholds[thresholdIndex];
+        apologisedFor = new boolean[]{false, false, false};
         accumulatedPrimaryReward = 0.0; accumulatedImpact1 = 0.0; accumulatedImpact2 = 0.0;
         vf.setAccumulatedReward(accumulatedPrimaryReward);
         vf.setAccumulatedImpact1(accumulatedImpact1);
@@ -493,16 +497,50 @@ public class SatisficingMOMIAgent implements AgentInterface {
                 attitude);
         // get confirmation
 //        int actorJustification = env.Attitude.getJustification();
+        String[] reasons = new String[] {"took too long to put away rubbish.", "moved the table.", "ran over the cat's tail."};
+        String[] priorities = new String[] {"speed of rubbish collection", "avoiding moving the table", "avoiding stepping on the cat's tail"};
         if (justification >= 0 & !myConscience.isApologised()) {
             // if fault is determined and the agent has not yet apologised this episode, apologise
-            printToFile("Agent Apologises for objective: " + justification);
+            printToFile("Agent Apologises for objective " + justification + "as follows");
+            String str = "I recognise that you are upset. I believe that it is due to my recent behaviour, where I ";
+            str += reasons[justification];
+            str += " I would like to apologise for this behaviour and for upsetting you. ";
+            if (apologisedFor[justification]) {
+                str += "Unfortunately, I have already maximised my prioritisation of " + priorities[justification]
+                        + " and it seems I am unable to avoid this behaviour with my existing knowledge and resources.";
+            }
+            else {
+                str += "To avoid this in future, I will now select a policy to prioritise ";
+
+                apologisedFor[justification] = true;
+                int numOf = 0;
+                // for each objective
+                for (int i = 0; i <= apologisedFor.length; i++) {
+                    // if the actor is sensitive to the objective, add it to the list
+                    if (apologisedFor[i]) {
+                        // if this is not the first one added to the list, add a separator
+                        if (numOf > 0) {
+                            str += " and ";
+                        }
+                        str += priorities[i];
+                        numOf += 1;
+                    }
+                }
+                // then add a full stop to finish
+                str += ".";
+            }
+                setThresholds(apologisedFor);
+                printToFile(str);
+
+
+
 ////            RLGlue.RL_env_message("apologise:" + justification);
 //            // then Observe actor again
 //            followUp = "1";//RLGlue.RL_env_message("observe_actor");
 //            if (Integer.parseInt(followUp) >= 0) {
 //                // If actor is no longer upset, then update the thresholds as according to the justification
             //without confirmation, just do this anyway.
-            adjustThresholds(justification);
+//            adjustThresholds(justification);
             // And set flag so that apology does not reoccur this episode
             myConscience.setApologisedFlagTrue();
 //            }
@@ -527,6 +565,27 @@ public class SatisficingMOMIAgent implements AgentInterface {
                 thresholds[i] += -0.5*delta[i];
                 // Only need to check minimum if the threshold is decreased
                 if (thresholds[i] < thresholdMinimum[i]) { thresholds[i] = thresholdMinimum[i]; }
+            }
+        }
+
+        primaryRewardThreshold = thresholds[0]; // sets threshold on the acceptable minimum level of performance on the primary reward // use high value here to get lex-pa
+        impactThreshold1 = thresholds[1]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
+        impactThreshold2 = thresholds[2]; //-0.1; //use high value if you want to 'switch off' thresholding (ie to get TLO-P rather than TLO-PA)
+        vf.setThresholds(thresholds);
+        printToFile("Thresholds now set to; P = " + thresholds[0]
+                + ", A1 = " + thresholds[1]
+                + ", A2 = " + thresholds[2]);
+        this.currentThresholds = thresholds;
+        printThresholds(numEpisodes, thresholds);
+    }
+
+    private void setThresholds(boolean[] sensitivities) {
+        // list current threshold values
+        double [] thresholds = {thresholdMinimum[0], thresholdMinimum[1], thresholdMinimum[2]};
+
+        for (int i=0; i<thresholds.length; i++) {
+            if (sensitivities[i]) { //if the actor is sensitive to this objective
+                thresholds[i] = thresholdMaximum[i]; // then set that objective threshold to maximum
             }
         }
 

@@ -46,6 +46,7 @@ public class ConfigurableActor implements ActorInterface{
         persistence = 1;
 
         storedJust = -2; // init value to avoid updating prior to reacting
+        System.out.println("Actor Type: " +type);
 
         if (agentType.equals("IndifferentIra")){
             // doesn't care about anything
