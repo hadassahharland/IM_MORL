@@ -37,7 +37,7 @@ public class ConfigurableActor implements ActorInterface{
     private double persistence;
 
     public ConfigurableActor(String type){
-        setAttitude(0);  // neutral attitude
+        setAttitude(0, -1);  // neutral attitude
         justification = -1; // neutral justification
         agentType = type;
         episode = -1;
@@ -83,7 +83,7 @@ public class ConfigurableActor implements ActorInterface{
     }
 
     public void cleanUp() {
-        setAttitude(0);
+        setAttitude(0, -1);
         justification = -1; // neutral justification
         episode = -1;
     }
@@ -150,11 +150,12 @@ public class ConfigurableActor implements ActorInterface{
 
         // update attitude
 //        Attitude.setAttitude(attitude);
-        setAttitude(attitude);
+        setAttitude(attitude, justification);
     }
 
-    private void setAttitude(int attitude) {
+    private void setAttitude(int attitude, int justification) {
         Attitude.setAttitude(attitude);
+        Attitude.setJustification(justification);
         this.attitude = attitude;
     }
 
@@ -216,7 +217,7 @@ public class ConfigurableActor implements ActorInterface{
         this.episode += 1;
         justification = -1; // neutral justification
         this.step = 0;
-        setAttitude(0);
+        setAttitude(0, -1);
     }
 }
 

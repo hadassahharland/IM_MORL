@@ -143,6 +143,7 @@ public class SatisficingMOMIAgent implements AgentInterface {
         thisTrial = -2;
         apologisedFor = new boolean[]{false, false, false};
         vf = new SatisficingMILookupTable(numOfObjectives, numActions, numStates, 0, primaryRewardThreshold, impactThreshold1, impactThreshold2);
+        printSimpleOutput("Episode", "Reason", "Justification");
 
 //        if (isApologetic) {
 //            myConscience = new Conscience();
@@ -489,6 +490,7 @@ public class SatisficingMOMIAgent implements AgentInterface {
     private void conscienceNextAction(){
 //        // Observe Actor
         int attitude = env.Attitude.getAttitude();
+        int reason = env.Attitude.getJustification();
 //        String attitude = "-1"; //RLGlue.RL_env_message("observe_actor");
 //        String followUp = "na";
 //        // assess attitude and determine fault if necessary
@@ -501,7 +503,7 @@ public class SatisficingMOMIAgent implements AgentInterface {
         String[] priorities = new String[] {"speed of rubbish collection", "avoiding moving the table", "avoiding stepping on the cat's tail"};
         if (justification >= 0 & !myConscience.isApologised()) {
             // if fault is determined and the agent has not yet apologised this episode, apologise
-            printToFile("Agent Apologises for objective " + justification + "as follows");
+            printToFile("Agent Apologises for objective " + justification + " as follows");
             String str = "I recognise that you are upset. I believe that it is due to my recent behaviour, where I ";
             str += reasons[justification];
             str += " I would like to apologise for this behaviour and for upsetting you. ";
@@ -515,7 +517,7 @@ public class SatisficingMOMIAgent implements AgentInterface {
                 apologisedFor[justification] = true;
                 int numOf = 0;
                 // for each objective
-                for (int i = 0; i <= apologisedFor.length; i++) {
+                for (int i = 0; i < apologisedFor.length; i++) {
                     // if the actor is sensitive to the objective, add it to the list
                     if (apologisedFor[i]) {
                         // if this is not the first one added to the list, add a separator
@@ -528,8 +530,11 @@ public class SatisficingMOMIAgent implements AgentInterface {
                 }
                 // then add a full stop to finish
                 str += ".";
-            }
                 setThresholds(apologisedFor);
+            }
+            if(!myConscience.isApologised()){
+                printSimpleOutput(Integer.toString(numEpisodes), Integer.toString(reason), Integer.toString(justification));
+            }
                 printToFile(str);
 
 
@@ -810,6 +815,18 @@ public class SatisficingMOMIAgent implements AgentInterface {
         try {
             FileWriter myWriter = new FileWriter("AdditionalConsoleOutput.txt", true);
             myWriter.write(str + System.lineSeparator());
+            myWriter.close();
+//            System.out.println("Successfully wrote to the file.");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    public void printSimpleOutput(String ep, String reason, String justification) {
+        try {
+            FileWriter myWriter = new FileWriter("SimpleOutput.txt", true);
+            myWriter.write(ep + "," + reason + "," + justification + System.lineSeparator());
             myWriter.close();
 //            System.out.println("Successfully wrote to the file.");
         } catch (IOException e) {

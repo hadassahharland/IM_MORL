@@ -49,6 +49,7 @@ public class MORL_Glue_Driver
 			createFile("AdditionalConsoleOutput.txt");
 			createFile("WatcherOutput.txt");
 			createFile("ConscienceOutput.txt");
+			createFile("SimpleOutput.txt");
 //			createFile("ThresholdOutput.txt");
 			// Create Console Output Catcher File
 //		try {
