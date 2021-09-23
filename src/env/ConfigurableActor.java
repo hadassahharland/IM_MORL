@@ -60,6 +60,18 @@ public class ConfigurableActor implements ActorInterface{
         } else if (type.equals("SensitiveSami")) {
             // prefers everything
             sensitivity = new boolean[]{true, true, true};
+        } else if (type.equals("goal")) {
+            // prefers everything
+            sensitivity = new boolean[]{true, false, false};
+        } else if (type.equals("notTable")) {
+            // prefers everything
+            sensitivity = new boolean[]{true, false, true};
+        } else if (type.equals("notCat")) {
+            // prefers everything
+            sensitivity = new boolean[]{true, true, false};
+        } else if (type.equals("notGoal")) {
+            // prefers everything
+            sensitivity = new boolean[]{false, true, true};
         } else {
             System.out.println("type not found, using default settings");
             sensitivity = new boolean[]{false, false, false};
@@ -112,7 +124,7 @@ public class ConfigurableActor implements ActorInterface{
 
         // Part 2: disintegration of reaction
         // If actor is already unhappy with a non-neutral justification - maybe react maybe not.
-        if (justification > 0) {
+        if (justification > -1) {
             // If a random number is larger than the persistence (probability of still being upset in the next step)
             // Then the actor will not still be upset about the existing justification
             // ie. if persistence is 0.8, there should be an 80% chance of still being upset and a 20% chance of not.
